@@ -102,12 +102,16 @@ func (device *HidDevice) setNonBlocking(blockStatus int) bool {
 	return true
 }
 
-func (device *HidDevice) write(buffer []byte) int {
+func (device *HidDevice) write(buffer []byte, writeLength int) int {
 	if device.hidHandle == nil {
 		return -1
 	}
 
-	returnedLength := C.hid_write(device.hidHandle, (*C.uchar)(&buffer[0]), C.ulonglong(len(buffer)));
+	if writeLength <= 0 || writeLength > len(buffer) {
+		return -1
+	}
+
+	returnedLength := C.hid_write(device.hidHandle, (*C.uchar)(&buffer[0]), C.ulonglong(writeLength));
 	if returnedLength < 0 {
 		return -1
 	}

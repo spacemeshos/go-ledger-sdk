@@ -1,5 +1,9 @@
 package ledger
 
+import (
+	"fmt"
+)
+
 const LedgerUSBVendorId = 0x2c97
 
 const cTag = 0x05
@@ -14,15 +18,15 @@ type Frame struct {
 func (frame *Frame) reduceResponse(channel int, chunk []byte) *Frame {
 
 	if chunk[0] != byte((channel >> 8) & 0xff) || chunk[1] != byte(channel & 0xff) {
-//		throw new TransportError("Invalid channel", "InvalidChannel");
+		fmt.Printf("Invalid channel\n")
 		return nil
 	}
 	if chunk[2] != cTag {
-//		throw new TransportError("Invalid tag", "InvalidTag");
+		fmt.Printf("Invalid tag\n")
 		return nil
 	}
 	if chunk[3] != byte((frame.sequence >> 8) & 0xff) || chunk[4] != byte(frame.sequence & 0xff) {
-//		throw new TransportError("Invalid sequence", "InvalidSequence");
+		fmt.Printf("Invalid sequence\n")
 		return nil
 	}
 
@@ -51,8 +55,8 @@ func (frame *Frame) getReducedResult() []byte {
 }
 
 
-func (device *HidDevice) writeHID(message []byte) int {
-	return device.write(message)
+func (device *HidDevice) writeHID(message []byte, writeLength int) int {
+	return device.write(message, writeLength)
 }
 
 func (device *HidDevice) readHID() []byte {
@@ -93,7 +97,12 @@ func (device *HidDevice) exchange(apdu []byte) []byte {
 	dataLength -= chunkLength
 
 	copy(message[8:], apdu[offset:chunkLength])
-        device.writeHID(message);
+        if writeLength := device.writeHID(message, chunkLength + 8); writeLength != (cPacketSize + 1) {
+		fmt.Printf("writeHID error %v\n", writeLength)
+		return nil
+	} else {
+		fmt.Printf("writeHID %v\n", writeLength)
+	}
 	offset += chunkLength
 
 	for i := 1 ; dataLength > 0; i++ {
@@ -101,13 +110,18 @@ func (device *HidDevice) exchange(apdu []byte) []byte {
 		message[5] = byte(i & 0xff)
 
 		chunkLength = dataLength
-		if chunkLength > cPacketSize - 7 {
-			chunkLength = cPacketSize - 7
+		if chunkLength > cPacketSize - 5 {
+			chunkLength = cPacketSize - 5
 		}
 		dataLength -= chunkLength
 
-		copy(message[8:], apdu[offset:offset + chunkLength])
-	        device.writeHID(message);
+		copy(message[6:], apdu[offset:offset + chunkLength])
+	        if writeLength := device.writeHID(message, chunkLength + 6); writeLength != (cPacketSize + 1) {
+			fmt.Printf("writeHID error %v\n", writeLength)
+			return nil
+		} else {
+			fmt.Printf("writeHID %v\n", writeLength)
+		}
 		offset += chunkLength
 	}
 
@@ -117,10 +131,12 @@ func (device *HidDevice) exchange(apdu []byte) []byte {
 	for result = frame.getReducedResult(); result == nil; result = frame.getReducedResult() {
 		buffer := device.readHID();
 		if buffer == nil {
+			fmt.Printf("Buffer is nil\n");
 			return nil
 		}
 		frame = frame.reduceResponse(device.channel, buffer);
 		if frame == nil {
+			fmt.Printf("Frame is nil\n");
 			return nil
 		}
 	}
