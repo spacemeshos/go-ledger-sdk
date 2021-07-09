@@ -97,7 +97,7 @@ func (device *HidDevice) exchange(apdu []byte) []byte {
 	dataLength -= chunkLength
 
 	copy(message[8:], apdu[offset:chunkLength])
-        if writeLength := device.writeHID(message, chunkLength + 8); writeLength != (cPacketSize + 1) {
+        if writeLength := device.writeHID(message, chunkLength + 8); writeLength != (chunkLength + 8) && writeLength != (cPacketSize + 1) {
 		fmt.Printf("writeHID error %v\n", writeLength)
 		return nil
 	} else {
@@ -116,7 +116,7 @@ func (device *HidDevice) exchange(apdu []byte) []byte {
 		dataLength -= chunkLength
 
 		copy(message[6:], apdu[offset:offset + chunkLength])
-	        if writeLength := device.writeHID(message, chunkLength + 6); writeLength != (cPacketSize + 1) {
+	        if writeLength := device.writeHID(message, chunkLength + 6); writeLength != (chunkLength + 6) && writeLength != (cPacketSize + 1) {
 			fmt.Printf("writeHID error %v\n", writeLength)
 			return nil
 		} else {

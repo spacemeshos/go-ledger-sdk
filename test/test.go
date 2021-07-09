@@ -31,6 +31,9 @@ func main() {
 	devices := ledger.GetDevices(ledger.LedgerUSBVendorId, 0)
 	for _, device := range devices {
 		fmt.Printf("device: %+v\n", device.Info)
+		if device.Info.UsagePage != 65440 {
+			continue
+		}
 		fmt.Printf("open: %v\n", device.Open())
 		fmt.Printf("version: %+v\n", device.GetVersion())
 		publicKey := device.GetExtendedPublicKey(ledger.StringToPath("44'/540'/0'/0/0'"))
