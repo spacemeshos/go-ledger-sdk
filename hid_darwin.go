@@ -1,6 +1,6 @@
 package ledger
 /*
-#cgo LDFLAGS:
+#cgo LDFLAGS: -L . -L/usr/local/lib -framework CoreFoundation -framework IOKit -framework AppKit
 #include "./hidapi/hidapi/hidapi.h"
 #include "./hidapi/mac/hid.c"
 */
@@ -75,7 +75,7 @@ func (device *HidDevice) write(buffer []byte, writeLength int) int {
 		return -1
 	}
 
-	returnedLength := C.hid_write(device.hidHandle, (*C.uchar)(&buffer[0]), C.ulonglong(writeLength));
+	returnedLength := C.hid_write(device.hidHandle, (*C.uchar)(&buffer[0]), C.ulong(writeLength));
 	if returnedLength < 0 {
 		return -1
 	}
