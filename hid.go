@@ -1,9 +1,15 @@
 package ledger
-
-// #cgo LDFLAGS:
-// #include "./hidapi/hidapi/hidapi.h"
-// #include "./hidapi/windows/hid.c"
-//
+/*
+#cgo LDFLAGS:
+#include "./hidapi/hidapi/hidapi.h"
+#ifdef WIN32
+#include "./hidapi/windows/hid.c"
+#elif defined (__linux__)
+#include "./hidapi/linux/hid.c"
+#elif defined( __APPLE__ )
+#include "./hidapi/mac/hid.c"
+#endif
+*/
 import "C"
 import (
 	"crypto/rand"
