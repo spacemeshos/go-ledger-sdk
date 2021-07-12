@@ -70,8 +70,8 @@ func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte)
 	buffer[3] = p2
 	buffer[4] = byte(len(data))
 	copy(buffer[5:], data)
-	response := device.exchange(buffer)
-	if response != nil {
+	response, err := device.exchange(buffer)
+	if err == nil {
 		response, status := stripRetcodeFromResponse(response)
 		if status != 0x9000 {
 			return response, fmt.Errorf("Request Error: %x", status)
@@ -79,7 +79,7 @@ func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte)
 		return response, nil
 	}
 
-	return response, fmt.Errorf("Empty response")
+	return nil, err
 }
 
 /**
@@ -158,7 +158,7 @@ func (device *HidDevice) GetAddress(path BipPath) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(response) != 32 {
+	if len(response) != 20 {
 		return nil, fmt.Errorf("Wrong response length: expected 32, got %v", len(response))
 	}
 	return response, nil
@@ -212,9 +212,6 @@ func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
 	data = append(data, tx...)
 	var response []byte
 	var err error
-
-	fmt.Printf("data length %v\n", len(data))
-	fmt.Printf("data %v\n", data)
 
 	if len(data) <= MAX_PACKET_LENGTH {
 		response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_HEADER | P1_IS_LAST, P2_UNUSED, data)

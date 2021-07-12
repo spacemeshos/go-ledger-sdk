@@ -635,6 +635,8 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 	struct hid_device_info *cur_dev = NULL;
 	struct hid_device_info *prev_dev = NULL; /* previous device */
 
+	printf("hid_enumerate(%d, %d)\n", vendor_id, product_id);
+
 	hid_init();
 
 	/* Create the udev object */

@@ -13,19 +13,16 @@ type Frame struct {
 	sequence	int
 }
 
-func (frame *Frame) reduceResponse(channel int, chunk []byte) *Frame {
+func (frame *Frame) reduceResponse(channel int, chunk []byte) (*Frame, error) {
 
 	if chunk[0] != byte((channel >> 8) & 0xff) || chunk[1] != byte(channel & 0xff) {
-		fmt.Printf("Invalid channel\n")
-		return nil
+		return nil, fmt.Errorf("Invalid channel")
 	}
 	if chunk[2] != cTag {
-		fmt.Printf("Invalid tag\n")
-		return nil
+		return nil, fmt.Errorf("Invalid tag")
 	}
 	if chunk[3] != byte((frame.sequence >> 8) & 0xff) || chunk[4] != byte(frame.sequence & 0xff) {
-		fmt.Printf("Invalid sequence\n")
-		return nil
+		return nil, fmt.Errorf("Invalid sequence")
 	}
 
 	if frame.data == nil {
@@ -42,7 +39,7 @@ func (frame *Frame) reduceResponse(channel int, chunk []byte) *Frame {
 		frame.data = frame.data[:frame.dataLength]
 	}
 
-	return frame
+	return frame, nil
 }
 
 func (frame *Frame) getReducedResult() []byte {
@@ -70,7 +67,7 @@ func (device *HidDevice) readHID() []byte {
  * @param apdu
  * @returns a promise of apdu response
  */
-func (device *HidDevice) exchange(apdu []byte) []byte {
+func (device *HidDevice) exchange(apdu []byte) ([]byte, error) {
 	message := make([]byte, cPacketSize + 1)
 	dataLength := len(apdu)
 	chunkLength := dataLength
@@ -96,10 +93,7 @@ func (device *HidDevice) exchange(apdu []byte) []byte {
 
 	copy(message[8:], apdu[offset:chunkLength])
         if writeLength := device.writeHID(message, chunkLength + 8); writeLength != (chunkLength + 8) && writeLength != (cPacketSize + 1) {
-		fmt.Printf("writeHID error %v\n", writeLength)
-		return nil
-	} else {
-		fmt.Printf("writeHID %v\n", writeLength)
+		return nil, fmt.Errorf("writeHID error %v", writeLength)
 	}
 	offset += chunkLength
 
@@ -115,29 +109,25 @@ func (device *HidDevice) exchange(apdu []byte) []byte {
 
 		copy(message[6:], apdu[offset:offset + chunkLength])
 	        if writeLength := device.writeHID(message, chunkLength + 6); writeLength != (chunkLength + 6) && writeLength != (cPacketSize + 1) {
-			fmt.Printf("writeHID error %v\n", writeLength)
-			return nil
-		} else {
-			fmt.Printf("writeHID %v\n", writeLength)
+			return nil, fmt.Errorf("writeHID error %v", writeLength)
 		}
 		offset += chunkLength
 	}
 
 	// Read...
 	var result []byte
+	var err error
 	frame := &Frame{}
 	for result = frame.getReducedResult(); result == nil; result = frame.getReducedResult() {
 		buffer := device.readHID();
 		if buffer == nil {
-			fmt.Printf("Buffer is nil\n");
-			return nil
+			return nil, fmt.Errorf("Buffer is nil")
 		}
-		frame = frame.reduceResponse(device.channel, buffer);
-		if frame == nil {
-			fmt.Printf("Frame is nil\n");
-			return nil
+		frame, err = frame.reduceResponse(device.channel, buffer);
+		if err != nil {
+			return nil, err
 		}
 	}
 
-	return result;
+	return result, nil
 }

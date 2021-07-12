@@ -116,8 +116,6 @@ func GetDevices(productId int) []*HidDevice {
 		if (dev.product_string != nil) {
 			device.Info.Product = Utf16prt2str(uintptr(unsafe.Pointer(dev.product_string)))
 		}
-//		deviceInfo.Release = dev.release_number
-//		deviceInfo.Interface = dev.interface_number
 		device.Info.UsagePage = uint16(dev.usage_page)
 		device.Info.Usage = uint16(dev.usage)
 		devices = append(devices, device)
