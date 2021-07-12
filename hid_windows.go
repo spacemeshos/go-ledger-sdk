@@ -54,16 +54,8 @@ func (device *HidDevice) readTimeout(timeout int) []byte {
 	return buff[:returnedLength]
 }
 
-func (device *HidDevice) close() {
+func (device *HidDevice) Close() {
 	device.closeHandle();
-}
-
-func (device *HidDevice) setNonBlocking(blockStatus int) bool {
-	res := C.hid_set_nonblocking(device.hidHandle, C.int(blockStatus))
-	if res < 0 {
-		return false
-	}
-	return true
 }
 
 func (device *HidDevice) write(buffer []byte, writeLength int) int {
@@ -83,14 +75,18 @@ func (device *HidDevice) write(buffer []byte, writeLength int) int {
 	return int(returnedLength)
 }
 
-func GetDevices(vendorId int, productId int) []*HidDevice {
-	devs := C.hid_enumerate(C.ushort(vendorId), C.ushort(productId))
+func GetDevices(productId int) []*HidDevice {
+	devs := C.hid_enumerate(C.ushort(LedgerUSBVendorId), C.ushort(productId))
 	if devs == nil {
 		return nil
 	}
+	defer C.hid_free_enumeration(devs)
 	devices := make([]*HidDevice, 0)
 
 	for dev := devs; dev != nil; dev = dev.next {
+		if dev.usage_page != 65440 {
+			continue
+		}
 		device := &HidDevice{}
 		b := make([]byte, 2)
 		_, err := rand.Read(b)
@@ -112,13 +108,11 @@ func GetDevices(vendorId int, productId int) []*HidDevice {
 		if (dev.product_string != nil) {
 			device.Info.Product = Utf16prt2str(uintptr(unsafe.Pointer(dev.product_string)))
 		}
-//		deviceInfo.Release = dev.release_number
-//		deviceInfo.Interface = dev.interface_number
 		device.Info.UsagePage = uint16(dev.usage_page)
 		device.Info.Usage = uint16(dev.usage)
 		devices = append(devices, device)
 	}
-	C.hid_free_enumeration(devs)
+
 	return devices
 }
 

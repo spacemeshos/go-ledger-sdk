@@ -4,8 +4,6 @@ import (
 	"fmt"
 )
 
-const LedgerUSBVendorId = 0x2c97
-
 const cTag = 0x05
 const cPacketSize = 64
 

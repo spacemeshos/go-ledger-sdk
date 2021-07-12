@@ -37,16 +37,16 @@ type ExtendedPublicKey struct {
 
 type BipPath []uint32
 
-func stripRetcodeFromResponse(response []byte) []byte {
+func stripRetcodeFromResponse(response []byte) ([]byte, uint32) {
 	L := len(response)
 	if L < 2 {
-		return nil
+		return nil, 0
 	}
 	if response[L-2] != 0x90 || response[L-1] != 0x00 { // OK code 0x9000
-		fmt.Printf("error code %x\n", (uint32(response[L-2]) << 8) + uint32(response[L-1]))
-		return nil
+//		fmt.Printf("error code %x\n", (uint32(response[L-2]) << 8) + uint32(response[L-1]))
+		return nil, (uint32(response[L-2]) << 8) + uint32(response[L-1])
 	}
-	return response[0 : L-2]
+	return response[0 : L-2], 0x9000
 }
 
 /**
@@ -59,10 +59,9 @@ func stripRetcodeFromResponse(response []byte) []byte {
  * @param statusList is a list of accepted status code (shorts). [0x9000] by default
  * @return a Promise of response buffer
  */
-func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte) []byte {
+func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte) ([]byte, error) {
 	if len(data) >= 256 {
-//		throw new TransportError("data.length exceed 256 bytes limit. Got: " + data.length, "DataLengthTooBig")
-		return nil
+		return nil, fmt.Errorf("DataLengthTooBig: data.length exceed 256 bytes limit. Got: %v", len(data))
 	}
 	buffer := make([]byte, 5 + len(data))
 	buffer[0] = cla
@@ -73,10 +72,14 @@ func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte)
 	copy(buffer[5:], data)
 	response := device.exchange(buffer)
 	if response != nil {
-		response = stripRetcodeFromResponse(response)
+		response, status := stripRetcodeFromResponse(response)
+		if status != 0x9000 {
+			return response, fmt.Errorf("Request Error: %x", status)
+		}
+		return response, nil
 	}
 
-	return response;
+	return response, fmt.Errorf("Empty response")
 }
 
 /**
@@ -89,17 +92,20 @@ func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte)
  * console.log(`App version ${major}.${minor}.${patch}`);
  *
  */
-func (device *HidDevice) GetVersion() *Version {
-	response := device.send(CLA, INS_GET_VERSION, P1_UNUSED, P2_UNUSED, []byte{})
-	if response == nil || len(response) != 4 {
-		return nil
+func (device *HidDevice) GetVersion() (*Version, error) {
+	response, err := device.send(CLA, INS_GET_VERSION, P1_UNUSED, P2_UNUSED, []byte{})
+	if err != nil {
+		return nil, err
+	}
+	if len(response) != 4 {
+		return nil, fmt.Errorf("Wrong response length: expected 4, got %v", len(response))
 	}
 	return &Version {
 		Major: response[0],
 		Minor: response[1], 
 		Patch: response[2],
 		Flags: response[3],
-	}
+	}, nil
 }
 
 /**
@@ -117,19 +123,19 @@ func (device *HidDevice) GetVersion() *Version {
  * console.log(publicKey);
  *
  */
-func (device *HidDevice) GetExtendedPublicKey(path BipPath) *ExtendedPublicKey {
-
+func (device *HidDevice) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey, error) {
 	data := pathToBytes(path)
-	response := device.send(CLA, INS_GET_EXT_PUBLIC_KEY, P1_UNUSED, P2_UNUSED, data)
-	fmt.Printf("result len %v\n", len(response))
-	if response == nil || len(response) != (32 + 32) {
-		return nil
+	response, err := device.send(CLA, INS_GET_EXT_PUBLIC_KEY, P1_UNUSED, P2_UNUSED, data)
+	if err != nil {
+		return nil, err
 	}
-
+	if len(response) != (32 + 32) {
+		return nil, fmt.Errorf("Wrong response length: expected 64, got %v", len(response))
+	}
 	return &ExtendedPublicKey {
 		PublicKey: response[:32],
 		ChainCode: response[32:],
-	}
+	}, nil
 }
 
 /**
@@ -146,16 +152,16 @@ func (device *HidDevice) GetExtendedPublicKey(path BipPath) *ExtendedPublicKey {
  * const { address } = await smesh.getAddress([ HARDENED + 44, HARDENED + 540, HARDENED + 0, 0, 2 ]);
  *
  */
-func (device *HidDevice) GetAddress(path BipPath) []byte {
-
+func (device *HidDevice) GetAddress(path BipPath) ([]byte, error) {
 	data := pathToBytes(path)
-	response := device.send(CLA, INS_GET_ADDRESS, P1_RETURN, P2_UNUSED, data)
-	fmt.Printf("result len %v\n", len(response))
-	if response == nil || len(response) != 32 {
-		return nil
+	response, err := device.send(CLA, INS_GET_ADDRESS, P1_RETURN, P2_UNUSED, data)
+	if err != nil {
+		return nil, err
 	}
-
-	return response
+	if len(response) != 32 {
+		return nil, fmt.Errorf("Wrong response length: expected 32, got %v", len(response))
+	}
+	return response, nil
 }
 
 /**
@@ -171,16 +177,17 @@ func (device *HidDevice) GetAddress(path BipPath) []byte {
  * await smesh.showAddress([ HARDENED + 44, HARDENED + 540, HARDENED + 0, 0, HARDENED + 2 ]);
  *
  */
-func (device *HidDevice) ShowAddress(path BipPath) bool {
-
+func (device *HidDevice) ShowAddress(path BipPath) error {
 	data := pathToBytes(path)
-	response := device.send(CLA, INS_GET_ADDRESS, P1_DISPLAY, P2_UNUSED, data)
-	fmt.Printf("result len %v\n", len(response))
-	if response == nil || len(response) != 0 {
-		return false
+	response, err := device.send(CLA, INS_GET_ADDRESS, P1_DISPLAY, P2_UNUSED, data)
+	if err != nil {
+		return err
+	}
+	if len(response) != 0 {
+		return fmt.Errorf("Wrong response length: expected 0, got %v", len(response))
 	}
 
-	return true
+	return nil
 }
 
 /**
@@ -200,45 +207,52 @@ func (device *HidDevice) ShowAddress(path BipPath) bool {
  * const { signature } = await smesh.signTx([ HARDENED + 44, HARDENED + 540, HARDENED + 0, 0, 2 ], txData);
  *
  */
-func (device *HidDevice) SignTx(path BipPath, tx []byte) []byte {
-
+func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
 	data := pathToBytes(path)
 	data = append(data, tx...)
 	var response []byte
+	var err error
 
 	fmt.Printf("data length %v\n", len(data))
 	fmt.Printf("data %v\n", data)
 
 	if len(data) <= MAX_PACKET_LENGTH {
-		response = device.send(CLA, INS_SIGN_TX, P1_HAS_HEADER | P1_IS_LAST, P2_UNUSED, data)
+		response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_HEADER | P1_IS_LAST, P2_UNUSED, data)
 	} else {
 		dataSize := len(data)
 		chunkSize := MAX_PACKET_LENGTH
 		offset := 0
 		// Send tx header + tx data
-		response = device.send(CLA, INS_SIGN_TX, P1_HAS_HEADER | P1_HAS_DATA, P2_UNUSED, data[offset : offset + chunkSize])
-	fmt.Printf("response 2 len %v\n", len(response))
-		if response == nil || len(response) != 0 {
-			return nil
+		response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_HEADER | P1_HAS_DATA, P2_UNUSED, data[offset : offset + chunkSize])
+		if err != nil {
+			return nil, err
+		}
+		if len(response) != 0 {
+			return nil, fmt.Errorf("Wrong response length: expected 0, got %v", len(response))
 		}
 		dataSize -= chunkSize
 		offset += chunkSize
 		// Send tx data
 		for ; dataSize > MAX_PACKET_LENGTH;  {
-			response = device.send(CLA, INS_SIGN_TX, P1_HAS_DATA, P2_UNUSED, data[offset : offset + chunkSize])
-	fmt.Printf("response 3 len %v\n", len(response))
-			if response == nil || len(response) != 0 {
-				return nil
+			response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_DATA, P2_UNUSED, data[offset : offset + chunkSize])
+			if err != nil {
+				return nil, err
+			}
+			if len(response) != 0 {
+				return nil, fmt.Errorf("Wrong response length: expected 0, got %v", len(response))
 			}
 			dataSize -= chunkSize
 			offset += chunkSize
 		}
-		response = device.send(CLA, INS_SIGN_TX, P1_IS_LAST, P2_UNUSED, data[offset:])
+		response, err = device.send(CLA, INS_SIGN_TX, P1_IS_LAST, P2_UNUSED, data[offset:])
 	}
 
-	fmt.Printf("response len %v\n", len(response))
-	if response == nil || len(response) != (64 + 32) {
-		return nil
+	if err != nil {
+		return nil, err
+	}
+
+	if len(response) != (64 + 32) {
+		return nil, fmt.Errorf("Wrong response length: expected 96, got %v", len(response))
 	}
 
 	result := make([]byte, 64 + len(tx))
@@ -246,5 +260,5 @@ func (device *HidDevice) SignTx(path BipPath, tx []byte) []byte {
 	copy(result[1:], response[:64])
 	copy(result[65:], tx[1:])
 
-	return result
+	return result, nil
 }
