@@ -1,11 +1,11 @@
 package ledger
 
 import (
-//	"fmt"
 	"strconv"
 	"strings"
 )
 
+// Parse string to BIP32 path
 func StringToPath(pathStr string) BipPath {
 	if len(pathStr) == 0 {
 		return nil
@@ -32,6 +32,7 @@ func StringToPath(pathStr string) BipPath {
 	return path
 }
 
+// Convert PIB32 path to BE bytes array
 func pathToBytes(path BipPath) []byte {
 	data := make([]byte, 1 + 4 * len(path))
 	data[0] = byte(len(path))

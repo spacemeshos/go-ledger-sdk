@@ -11,6 +11,8 @@ import (
 	"unsafe"
 )
 
+// Wrapper for HIDAPI library
+
 type HidDevice struct {
 	Info		HidDeviceInfo
 	hidHandle	*C.hid_device
@@ -115,15 +117,3 @@ func GetDevices(productId int) []*HidDevice {
 
 	return devices
 }
-
-func Deinitialize() {
-	C.hid_exit()
-}
-
-func Initialize() bool {
-	if C.hid_init() != 0 {
-		return false
-	}
-	return true
-}
-

@@ -42,13 +42,15 @@ type HidDeviceInfo struct {
 	InterfaceNumber	int
 }
 
-func addbuf(buf []uint16, newcap int)(newbuf []uint16) {
+// resize byte array
+func addbuf(buf []uint16, newcap int) (newbuf []uint16) {
 	newbuf = make([]uint16,newcap)
 	copy(newbuf,buf)
 	return
 }
 
-func Utf16prt2str(p uintptr)(str string){
+// Convert UTF16 to string
+func Utf16prt2str(p uintptr) (str string) {
 	len := 0
 	buf := make([]uint16,64)
 	for a := (*(*uint16)(unsafe.Pointer(p))); a != 0; len++ {
@@ -56,7 +58,7 @@ func Utf16prt2str(p uintptr)(str string){
 			buf = addbuf(buf,len*2)
 		}
 		buf[len] = a
-		p += 2//uint16 occupies 2 bytes
+		p += 2 //uint16 occupies 2 bytes
 		a = (*(*uint16)(unsafe.Pointer(p)))
 	}
 	str = string(utf16.Decode(buf[:len]))

@@ -13,7 +13,8 @@ type Frame struct {
 	sequence	int
 }
 
-func (frame *Frame) reduceResponse(channel int, chunk []byte) (*Frame, error) {
+// add chink to APDU response
+func (frame *Frame) add(channel int, chunk []byte) (*Frame, error) {
 
 	if chunk[0] != byte((channel >> 8) & 0xff) || chunk[1] != byte(channel & 0xff) {
 		return nil, fmt.Errorf("Invalid channel")
@@ -42,30 +43,19 @@ func (frame *Frame) reduceResponse(channel int, chunk []byte) (*Frame, error) {
 	return frame, nil
 }
 
-func (frame *Frame) getReducedResult() []byte {
+// returns result if ready
+func (frame *Frame) getResult() []byte {
 	if frame != nil && frame.data != nil && frame.dataLength == len(frame.data) {
 		return frame.data
 	}
 	return nil
 }
 
-
-func (device *HidDevice) writeHID(message []byte, writeLength int) int {
-	return device.write(message, writeLength)
-}
-
-func (device *HidDevice) readHID() []byte {
-	data := device.read()
-        if data == nil {
-          return nil
-        }
-	return data
-}
-
 /**
  * Exchange with the device using APDU protocol.
  * @param apdu
- * @returns a promise of apdu response
+ * @return {[]byte} apdu response
+ * @return {error} Error value.
  */
 func (device *HidDevice) exchange(apdu []byte) ([]byte, error) {
 	message := make([]byte, cPacketSize + 1)
@@ -73,31 +63,33 @@ func (device *HidDevice) exchange(apdu []byte) ([]byte, error) {
 	chunkLength := dataLength
 	offset := 0
 
-	// Write...
-
 	message[0] = 0
-
+	// Channel
         message[1] = byte((device.channel >> 8) & 0xff)
 	message[2] = byte(device.channel & 0xff)
+	// Tag
 	message[3] = cTag
-
+	// Sequence index for first APDU packet
 	message[4] = 0
 	message[5] = 0
-
+	// Data length
 	message[6] = byte((dataLength >> 8) & 0xff)
 	message[7] = byte(dataLength & 0xff)
+
 	if chunkLength > cPacketSize - 7 {
 		chunkLength = cPacketSize - 7
 	}
 	dataLength -= chunkLength
 
 	copy(message[8:], apdu[offset:chunkLength])
-        if writeLength := device.writeHID(message, chunkLength + 8); writeLength != (chunkLength + 8) && writeLength != (cPacketSize + 1) {
+	// Send first APDU packet
+        if writeLength := device.write(message, chunkLength + 8); writeLength != (chunkLength + 8) && writeLength != (cPacketSize + 1) {
 		return nil, fmt.Errorf("writeHID error %v", writeLength)
 	}
 	offset += chunkLength
 
 	for i := 1 ; dataLength > 0; i++ {
+		// Sequence index for this APDU packet
 		message[4] = byte((i >> 8) & 0xff)
 		message[5] = byte(i & 0xff)
 
@@ -108,22 +100,23 @@ func (device *HidDevice) exchange(apdu []byte) ([]byte, error) {
 		dataLength -= chunkLength
 
 		copy(message[6:], apdu[offset:offset + chunkLength])
-	        if writeLength := device.writeHID(message, chunkLength + 6); writeLength != (chunkLength + 6) && writeLength != (cPacketSize + 1) {
+		// Send this APDU packet
+	        if writeLength := device.write(message, chunkLength + 6); writeLength != (chunkLength + 6) && writeLength != (cPacketSize + 1) {
 			return nil, fmt.Errorf("writeHID error %v", writeLength)
 		}
 		offset += chunkLength
 	}
 
-	// Read...
+	// Read response
 	var result []byte
 	var err error
 	frame := &Frame{}
-	for result = frame.getReducedResult(); result == nil; result = frame.getReducedResult() {
-		buffer := device.readHID();
+	for result = frame.getResult(); result == nil; result = frame.getResult() {
+		buffer := device.read();
 		if buffer == nil {
 			return nil, fmt.Errorf("Buffer is nil")
 		}
-		frame, err = frame.reduceResponse(device.channel, buffer);
+		frame, err = frame.add(device.channel, buffer);
 		if err != nil {
 			return nil, err
 		}

@@ -11,6 +11,8 @@ import (
 	"unsafe"
 )
 
+// Wrapper for HIDAPI library
+
 type HidDevice struct {
 	Info		HidDeviceInfo
 	hidHandle	*C.hid_device
@@ -18,6 +20,23 @@ type HidDevice struct {
 	channel		int
 }
 
+/**
+ * @description Open Ledger device for communication.
+ *
+ * @return {error} Error value.
+ *
+ * @example
+ * devices := ledger.GetDevices(0)
+ * if devices != nil && len(devices) > 0 {
+ * 	device := devices[0]
+ * 	if err := device.Open(); err == nil {
+ * 		...
+ * 		device.Close()
+ * 	} else {
+ * 		fmt.Printf("Open device ERROR: %v\n", err)
+ * 	}
+ * }
+ */
 func (device *HidDevice) Open() error {
 	device.closeHandle()
 	path := C.CString(device.Info.Path)
@@ -54,6 +73,21 @@ func (device *HidDevice) readTimeout(timeout int) []byte {
 	return buff[:returnedLength]
 }
 
+/**
+ * @description Close communication with Ledger device.
+ *
+ * @example
+ * devices := ledger.GetDevices(0)
+ * if devices != nil && len(devices) > 0 {
+ * 	device := devices[0]
+ * 	if err := device.Open(); err == nil {
+ * 		...
+ * 		device.Close()
+ * 	} else {
+ * 		fmt.Printf("Open device ERROR: %v\n", err)
+ * 	}
+ * }
+ */
 func (device *HidDevice) Close() {
 	device.closeHandle();
 }
@@ -83,6 +117,24 @@ func (device *HidDevice) write(buffer []byte, writeLength int) int {
 	return int(returnedLength)
 }
 
+/**
+ * @description Enumerate Ledger devices.
+ *
+ * @param {int} productId USB Product ID filter, 0 - all.
+ * @return {[]*HidDevice} Discovered Ledger devices.
+ *
+ * @example
+ * devices := ledger.GetDevices(0)
+ * if devices != nil && len(devices) > 0 {
+ * 	device := devices[0]
+ * 	if err := device.Open(); err == nil {
+ * 		...
+ * 		device.Close()
+ * 	} else {
+ * 		fmt.Printf("Open device ERROR: %v\n", err)
+ * 	}
+ * }
+ */
 func GetDevices(productId int) []*HidDevice {
 	devs := C.hid_enumerate(C.ushort(LedgerUSBVendorId), C.ushort(productId))
 	if devs == nil {
@@ -123,15 +175,3 @@ func GetDevices(productId int) []*HidDevice {
 	
 	return devices
 }
-
-func Deinitialize() {
-	C.hid_exit()
-}
-
-func Initialize() bool {
-	if C.hid_init() != 0 {
-		return false
-	}
-	return true
-}
-

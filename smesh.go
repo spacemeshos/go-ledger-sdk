@@ -37,27 +37,32 @@ type ExtendedPublicKey struct {
 
 type BipPath []uint32
 
+/**
+ * Extract return code from response.
+ * @param {[]byte} Response data
+ * @return {[]byte} Response data without return code
+ * @return {error} Error value.
+ */
 func stripRetcodeFromResponse(response []byte) ([]byte, uint32) {
 	L := len(response)
 	if L < 2 {
 		return nil, 0
 	}
 	if response[L-2] != 0x90 || response[L-1] != 0x00 { // OK code 0x9000
-//		fmt.Printf("error code %x\n", (uint32(response[L-2]) << 8) + uint32(response[L-1]))
 		return nil, (uint32(response[L-2]) << 8) + uint32(response[L-1])
 	}
 	return response[0 : L-2], 0x9000
 }
 
 /**
- * wrapper on top of exchange to simplify work of the implementation.
+ * Wrapper on top of exchange to simplify work of the implementation.
  * @param cla
  * @param ins
  * @param p1
  * @param p2
  * @param data
- * @param statusList is a list of accepted status code (shorts). [0x9000] by default
- * @return a Promise of response buffer
+ * @return {[]byte} Response data
+ * @return {error} Error value.
  */
 func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte) ([]byte, error) {
 	if len(data) >= 256 {
@@ -74,6 +79,21 @@ func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte)
 	if err == nil {
 		response, status := stripRetcodeFromResponse(response)
 		if status != 0x9000 {
+			if status == 0x6E05 {
+				return response, fmt.Errorf("Request Error 0x6E05: P1, P2 or payload is invalid")
+			}
+			if status == 0x6E06 {
+				return response, fmt.Errorf("Request Error 0x6E06: Request is not valid in the context of previous calls")
+			}
+			if status == 0x6E07 {
+				return response, fmt.Errorf("Request Error 0x6E07: Some part of request data is invalid")
+			}
+			if status == 0x6E09 {
+				return response, fmt.Errorf("Request Error 0x6E09: User rejected the action")
+			}
+			if status == 0x6E11 {
+				return response, fmt.Errorf("Request Error 0x6E11: Pin screen", status)
+			}
 			return response, fmt.Errorf("Request Error: %x", status)
 		}
 		return response, nil
@@ -85,12 +105,16 @@ func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte)
 /**
  * Returns an object containing the app version.
  *
- * @returns {Promise<GetVersionResponse>} Result object containing the application version number.
+ * @returns {Version} Result object containing the application version number.
+ * @return {error} Error value.
  *
  * @example
- * const { major, minor, patch, flags } = await smesh.getVersion();
- * console.log(`App version ${major}.${minor}.${patch}`);
- *
+ * version, err := device.GetVersion()
+ * if err != nil {
+ * 	fmt.Printf("get version ERROR: %v\n", err)
+ * } else {
+ * 	fmt.Printf("version: %+v\n", version)
+ * }
  */
 func (device *HidDevice) GetVersion() (*Version, error) {
 	response, err := device.send(CLA, INS_GET_VERSION, P1_UNUSED, P2_UNUSED, []byte{})
@@ -111,17 +135,17 @@ func (device *HidDevice) GetVersion() (*Version, error) {
 /**
  * @description Get a public key from the specified BIP 32 path.
  *
- * @param {BIP32Path} indexes The path indexes. Path must begin with `44'/540'/n'`, and shuld be 5 indexes long.
- * @return {Promise<GetExtendedPublicKeyResponse>} The public key with chaincode for the given path.
- *
- * @throws 0x6E07 - Some part of request data is invalid
- * @throws 0x6E09 - User rejected the action
- * @throws 0x6E11 - Pin screen
+ * @param {BipPath} path The BIP 32 path indexes. Path must begin with `44'/540'/n'`, and shuld be 5 indexes long.
+ * @return {ExtendedPublicKey} The public key with chaincode for the given path.
+ * @return {error} Error value.
  *
  * @example
- * const { publicKey, chainCode } = await smesh.getExtendedPublicKey([ HARDENED + 44, HARDENED + 540, HARDENED + 1 ]);
- * console.log(publicKey);
- *
+ * publicKey, err := device.GetExtendedPublicKey(ledger.StringToPath("44'/540'/0'/0/0'"))
+ * if err != nil {
+ * 	fmt.Printf("get public key ERROR: %v\n", err)
+ * } else {
+ * 	fmt.Printf("public key: %+v\n", publicKey)
+ * }
  */
 func (device *HidDevice) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey, error) {
 	data := pathToBytes(path)
@@ -141,16 +165,17 @@ func (device *HidDevice) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey,
 /**
  * @description Gets an address from the specified BIP 32 path.
  *
- * @param {BIP32Path} indexes The path indexes. Path must begin with `44'/540'/0'/0/i`
- * @return {Promise<GetAddressResponse>} The address for the given path.
- *
- * @throws 0x6E07 - Some part of request data is invalid
- * @throws 0x6E09 - User rejected the action
- * @throws 0x6E11 - Pin screen
+ * @param {BipPath} path The BIP 32 path indexes. Path must begin with `44'/540'/0'/0/i`
+ * @return {[]byte} The address for the given path.
+ * @return {error} Error value.
  *
  * @example
- * const { address } = await smesh.getAddress([ HARDENED + 44, HARDENED + 540, HARDENED + 0, 0, 2 ]);
- *
+ * address, err := device.GetAddress(ledger.StringToPath("44'/540'/0'/0/0'"))
+ * if err != nil {
+ * 	fmt.Printf("get address ERROR: %v\n", err)
+ * } else {
+ * 	fmt.Printf("address: %+v\n", address)
+ * }
  */
 func (device *HidDevice) GetAddress(path BipPath) ([]byte, error) {
 	data := pathToBytes(path)
@@ -167,15 +192,16 @@ func (device *HidDevice) GetAddress(path BipPath) ([]byte, error) {
 /**
  * @description Show an address from the specified BIP 32 path for verify.
  *
- * @param {BIP32Path} indexes The path indexes. Path must begin with `44'/540'/0'/0/i`
- * @return {Promise<void>} No return.
- *
- * @throws 0x6E07 - Some part of request data is invalid
- * @throws 0x6E11 - Pin screen
+ * @param {BipPath} indexes The path indexes. Path must begin with `44'/540'/0'/0/i`
+ * @return {error} Error value.
  *
  * @example
- * await smesh.showAddress([ HARDENED + 44, HARDENED + 540, HARDENED + 0, 0, HARDENED + 2 ]);
- *
+ * err := device.ShowAddress(ledger.StringToPath("44'/540'/0'/0/1'"))
+ * if err != nil {
+ * 	fmt.Printf("show address ERROR: %v\n", err)
+ * } else {
+ * 	fmt.Printf("show address: OK\n")
+ * }
  */
 func (device *HidDevice) ShowAddress(path BipPath) error {
 	data := pathToBytes(path)
@@ -193,19 +219,32 @@ func (device *HidDevice) ShowAddress(path BipPath) error {
 /**
  * @description Sign an transaction by the specified BIP 32 path account address.
  *
- * @param {BIP32Path} indexes The path indexes. Path must begin with `44'/540'/0'/0/i`
- * @param {Buffer} tx The XDR encoded transaction data, include transaction type
- * @return {Promise<Buffer>} Signed transaction.
- *
- * @throws 0x6E05 - P1, P2 or payload is invalid
- * @throws 0x6E06 - Request is not valid in the context of previous calls
- * @throws 0x6E07 - Some part of request data is invalid
- * @throws 0x6E09 - User rejected the action
- * @throws 0x6E11 - Pin screen
+ * @param {BipPath} path The BIP 32 path indexes. Path must begin with `44'/540'/0'/0/i`
+ * @param {[]byte} tx The XDR encoded transaction data, include transaction type
+ * @return {[]byte} Signed transaction.
+ * @return {error} Error value
  *
  * @example
- * const { signature } = await smesh.signTx([ HARDENED + 44, HARDENED + 540, HARDENED + 0, 0, 2 ], txData);
- *
+ * tx := make([]byte, 0)
+ * var bin []byte
+ * bin, _ = hex.DecodeString("0000000000000000000000000000000000000000000000000000000000000000") // network id
+ * tx = append(tx, bin...)
+ * tx = append(tx, 0) // coin transaction with ed
+ * tx = append(tx, uint64_to_buf(1)...) // nonce
+ * bin, _ = hex.DecodeString("0000000000000000000000000000000000000000") // recepient
+ * tx = append(tx, bin...)
+ * tx = append(tx, uint64_to_buf(1000000)...) // gas limit
+ * tx = append(tx, uint64_to_buf(1000)...) // gas price
+ * tx = append(tx, uint64_to_buf(1000000000000)...) // amount
+ * tx = append(tx, publicKey.PublicKey...)
+ * 
+ * response, err := device.SignTx(ledger.StringToPath("44'/540'/0'/0/0'"), tx)
+ * if err != nil {
+ * 	fmt.Printf("Verify coin tx ERROR: %v\n", err)
+ * } else {
+ * 	hash := sha512.Sum512(tx)
+ * 	fmt.Printf("Verify coin tx: %v\n", ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]))
+ * }
  */
 func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
 	data := pathToBytes(path)
