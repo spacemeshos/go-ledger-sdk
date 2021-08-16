@@ -37,7 +37,7 @@ func do_test(device *ledger.HidDevice) {
 	if err != nil {
 		fmt.Printf("get public key ERROR: %v\n", err)
 	} else {
-		fmt.Printf("public key: %+v\n", publicKey)
+		fmt.Printf("public key: %x\n", publicKey)
 	}
 	address, err := device.GetAddress(ledger.StringToPath("44'/540'/0'/0/0'"))
 	if err != nil {
