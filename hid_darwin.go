@@ -1,4 +1,5 @@
 package ledger
+
 /*
 #cgo LDFLAGS: -L . -L/usr/local/lib -framework CoreFoundation -framework IOKit -framework AppKit
 #include "./hidapi/hidapi/hidapi.h"
@@ -14,10 +15,10 @@ import (
 // Wrapper for HIDAPI library
 
 type HidDevice struct {
-	Info		HidDeviceInfo
-	hidHandle	*C.hid_device
+	Info      HidDeviceInfo
+	hidHandle *C.hid_device
 
-	channel		int
+	channel int
 }
 
 /**
@@ -42,7 +43,7 @@ func (device *HidDevice) Open() error {
 	path := C.CString(device.Info.Path)
 	defer C.free(unsafe.Pointer(path))
 	device.hidHandle = C.hid_open_path(path)
-	if (device.hidHandle == nil) {
+	if device.hidHandle == nil {
 		return fmt.Errorf("cannot open device with path %v", device.Info.Path)
 	}
 	return nil
@@ -89,7 +90,7 @@ func (device *HidDevice) readTimeout(timeout int) []byte {
  * }
  */
 func (device *HidDevice) Close() {
-	device.closeHandle();
+	device.closeHandle()
 }
 
 func (device *HidDevice) setNonBlocking(blockStatus int) bool {
@@ -109,7 +110,7 @@ func (device *HidDevice) write(buffer []byte, writeLength int) int {
 		return -1
 	}
 
-	returnedLength := C.hid_write(device.hidHandle, (*C.uchar)(&buffer[0]), C.ulong(writeLength));
+	returnedLength := C.hid_write(device.hidHandle, (*C.uchar)(&buffer[0]), C.ulong(writeLength))
 	if returnedLength < 0 {
 		return -1
 	}
@@ -153,25 +154,25 @@ func GetDevices(productId int) []*HidDevice {
 		if err != nil {
 			return nil
 		}
-		device.channel = int(b[1]) << 8 | int(b[0])
+		device.channel = int(b[1])<<8 | int(b[0])
 		device.Info.VendorId = uint16(dev.vendor_id)
 		device.Info.ProductId = uint16(dev.product_id)
-		if (dev.path != nil) {
+		if dev.path != nil {
 			device.Info.Path = C.GoString((*C.char)(dev.path))
 		}
-		if (dev.serial_number != nil) {
+		if dev.serial_number != nil {
 			device.Info.SerialNumber = Utf16prt2str(uintptr(unsafe.Pointer(dev.serial_number)))
 		}
-		if (dev.manufacturer_string != nil) {
+		if dev.manufacturer_string != nil {
 			device.Info.Manufacturer = Utf16prt2str(uintptr(unsafe.Pointer(dev.manufacturer_string)))
 		}
-		if (dev.product_string != nil) {
+		if dev.product_string != nil {
 			device.Info.Product = Utf16prt2str(uintptr(unsafe.Pointer(dev.product_string)))
 		}
 		device.Info.UsagePage = uint16(dev.usage_page)
 		device.Info.Usage = uint16(dev.usage)
 		devices = append(devices, device)
 	}
-	
+
 	return devices
 }

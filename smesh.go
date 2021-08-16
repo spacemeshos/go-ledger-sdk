@@ -2,37 +2,37 @@ package ledger
 
 import (
 	"fmt"
-//	"strconv"
-//	"strings"
+	//	"strconv"
+	//	"strings"
 )
 
 const CLA = 0x30
 const MAX_PACKET_LENGTH = 240
 
-const INS_GET_VERSION		= 0x00
-const INS_GET_EXT_PUBLIC_KEY	= 0x10
-const INS_GET_ADDRESS		= 0x11
-const INS_SIGN_TX		= 0x20
+const INS_GET_VERSION = 0x00
+const INS_GET_EXT_PUBLIC_KEY = 0x10
+const INS_GET_ADDRESS = 0x11
+const INS_SIGN_TX = 0x20
 
-const P1_UNUSED 		= 0x00
-const P1_RETURN			= 0x01
-const P1_DISPLAY		= 0x02
-const P1_HAS_HEADER		= 0x01
-const P1_HAS_DATA		= 0x02
-const P1_IS_LAST		= 0x04
+const P1_UNUSED = 0x00
+const P1_RETURN = 0x01
+const P1_DISPLAY = 0x02
+const P1_HAS_HEADER = 0x01
+const P1_HAS_DATA = 0x02
+const P1_IS_LAST = 0x04
 
-const P2_UNUSED 		= 0x00
+const P2_UNUSED = 0x00
 
 type Version struct {
-  Major	byte
-  Minor	byte
-  Patch	byte
-  Flags	byte
+	Major byte
+	Minor byte
+	Patch byte
+	Flags byte
 }
 
 type ExtendedPublicKey struct {
-  PublicKey	[]byte
-  ChainCode	[]byte
+	PublicKey []byte
+	ChainCode []byte
 }
 
 type BipPath []uint32
@@ -68,7 +68,7 @@ func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte)
 	if len(data) >= 256 {
 		return nil, fmt.Errorf("DataLengthTooBig: data.length exceed 256 bytes limit. Got: %v", len(data))
 	}
-	buffer := make([]byte, 5 + len(data))
+	buffer := make([]byte, 5+len(data))
 	buffer[0] = cla
 	buffer[1] = ins
 	buffer[2] = p1
@@ -124,9 +124,9 @@ func (device *HidDevice) GetVersion() (*Version, error) {
 	if len(response) != 4 {
 		return nil, fmt.Errorf("Wrong response length: expected 4, got %v", len(response))
 	}
-	return &Version {
+	return &Version{
 		Major: response[0],
-		Minor: response[1], 
+		Minor: response[1],
 		Patch: response[2],
 		Flags: response[3],
 	}, nil
@@ -156,7 +156,7 @@ func (device *HidDevice) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey,
 	if len(response) != (32 + 32) {
 		return nil, fmt.Errorf("Wrong response length: expected 64, got %v", len(response))
 	}
-	return &ExtendedPublicKey {
+	return &ExtendedPublicKey{
 		PublicKey: response[:32],
 		ChainCode: response[32:],
 	}, nil
@@ -237,7 +237,7 @@ func (device *HidDevice) ShowAddress(path BipPath) error {
  * tx = append(tx, uint64_to_buf(1000)...) // gas price
  * tx = append(tx, uint64_to_buf(1000000000000)...) // amount
  * tx = append(tx, publicKey.PublicKey...)
- * 
+ *
  * response, err := device.SignTx(ledger.StringToPath("44'/540'/0'/0/0'"), tx)
  * if err != nil {
  * 	fmt.Printf("Verify coin tx ERROR: %v\n", err)
@@ -253,13 +253,13 @@ func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
 	var err error
 
 	if len(data) <= MAX_PACKET_LENGTH {
-		response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_HEADER | P1_IS_LAST, P2_UNUSED, data)
+		response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_HEADER|P1_IS_LAST, P2_UNUSED, data)
 	} else {
 		dataSize := len(data)
 		chunkSize := MAX_PACKET_LENGTH
 		offset := 0
 		// Send tx header + tx data
-		response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_HEADER | P1_HAS_DATA, P2_UNUSED, data[offset : offset + chunkSize])
+		response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_HEADER|P1_HAS_DATA, P2_UNUSED, data[offset:offset+chunkSize])
 		if err != nil {
 			return nil, err
 		}
@@ -269,8 +269,8 @@ func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
 		dataSize -= chunkSize
 		offset += chunkSize
 		// Send tx data
-		for ; dataSize > MAX_PACKET_LENGTH;  {
-			response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_DATA, P2_UNUSED, data[offset : offset + chunkSize])
+		for dataSize > MAX_PACKET_LENGTH {
+			response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_DATA, P2_UNUSED, data[offset:offset+chunkSize])
 			if err != nil {
 				return nil, err
 			}
@@ -291,7 +291,7 @@ func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
 		return nil, fmt.Errorf("Wrong response length: expected 96, got %v", len(response))
 	}
 
-	result := make([]byte, 64 + len(tx))
+	result := make([]byte, 64+len(tx))
 	result[0] = tx[0]
 	copy(result[1:], response[:64])
 	copy(result[65:], tx[1:])

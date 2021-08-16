@@ -26,7 +26,7 @@ func StringToPath(pathStr string) BipPath {
 		if err != nil {
 			return nil
 		}
-		path[i] = base + uint32(p);
+		path[i] = base + uint32(p)
 	}
 
 	return path
@@ -34,14 +34,14 @@ func StringToPath(pathStr string) BipPath {
 
 // Convert PIB32 path to BE bytes array
 func pathToBytes(path BipPath) []byte {
-	data := make([]byte, 1 + 4 * len(path))
+	data := make([]byte, 1+4*len(path))
 	data[0] = byte(len(path))
 
-	for i, p := range(path) {
-		data[1 + i * 4] = byte((p >> 24) & 0xff)
-		data[2 + i * 4] = byte((p >> 16) & 0xff)
-		data[3 + i * 4] = byte((p >>  8) & 0xff)
-		data[4 + i * 4] = byte( p        & 0xff)
+	for i, p := range path {
+		data[1+i*4] = byte((p >> 24) & 0xff)
+		data[2+i*4] = byte((p >> 16) & 0xff)
+		data[3+i*4] = byte((p >> 8) & 0xff)
+		data[4+i*4] = byte(p & 0xff)
 	}
-	return data;
+	return data
 }

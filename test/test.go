@@ -4,8 +4,8 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
-	ledger "github.com/spacemeshos/go-ledger-sdk"
 	"github.com/spacemeshos/ed25519"
+	ledger "github.com/spacemeshos/go-ledger-sdk"
 )
 
 func uint64_to_buf(value uint64) []byte {
@@ -16,8 +16,8 @@ func uint64_to_buf(value uint64) []byte {
 	data[3] = byte((value >> 32) & 0xff)
 	data[4] = byte((value >> 24) & 0xff)
 	data[5] = byte((value >> 16) & 0xff)
-	data[6] = byte((value >>  8) & 0xff)
-	data[7] = byte((value      ) & 0xff)
+	data[6] = byte((value >> 8) & 0xff)
+	data[7] = byte((value) & 0xff)
 	return data
 }
 
@@ -56,12 +56,12 @@ func do_test(device *ledger.HidDevice) {
 	var bin []byte
 	bin, _ = hex.DecodeString("0000000000000000000000000000000000000000000000000000000000000000") // network id
 	tx = append(tx, bin...)
-	tx = append(tx, 0) // coin transaction with ed
-	tx = append(tx, uint64_to_buf(1)...) // nonce
+	tx = append(tx, 0)                                                    // coin transaction with ed
+	tx = append(tx, uint64_to_buf(1)...)                                  // nonce
 	bin, _ = hex.DecodeString("0000000000000000000000000000000000000000") // recepient
 	tx = append(tx, bin...)
-	tx = append(tx, uint64_to_buf(1000000)...) // gas limit
-	tx = append(tx, uint64_to_buf(1000)...) // gas price
+	tx = append(tx, uint64_to_buf(1000000)...)       // gas limit
+	tx = append(tx, uint64_to_buf(1000)...)          // gas price
 	tx = append(tx, uint64_to_buf(1000000000000)...) // amount
 	tx = append(tx, publicKey.PublicKey...)
 
@@ -76,12 +76,12 @@ func do_test(device *ledger.HidDevice) {
 	tx = make([]byte, 0)
 	bin, _ = hex.DecodeString("0000000000000000000000000000000000000000000000000000000000000000") // network id
 	tx = append(tx, bin...)
-	tx = append(tx, 2) // exec app transaction with ed
-	tx = append(tx, uint64_to_buf(1)...) // nonce
+	tx = append(tx, 2)                                                    // exec app transaction with ed
+	tx = append(tx, uint64_to_buf(1)...)                                  // nonce
 	bin, _ = hex.DecodeString("0000000000000000000000000000000000000000") // app address
 	tx = append(tx, bin...)
-	tx = append(tx, uint64_to_buf(1000000)...) // gas limit
-	tx = append(tx, uint64_to_buf(1000)...) // gas price
+	tx = append(tx, uint64_to_buf(1000000)...)       // gas limit
+	tx = append(tx, uint64_to_buf(1000)...)          // gas price
 	tx = append(tx, uint64_to_buf(1000000000000)...) // amount
 	// call data
 	bin, _ = hex.DecodeString("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000") // bin data
@@ -105,12 +105,12 @@ func do_test(device *ledger.HidDevice) {
 	tx = make([]byte, 0)
 	bin, _ = hex.DecodeString("0000000000000000000000000000000000000000000000000000000000000000") // network id
 	tx = append(tx, bin...)
-	tx = append(tx, 4) // spawn app + ed
-	tx = append(tx, uint64_to_buf(1)...) // nonce
+	tx = append(tx, 4)                                                    // spawn app + ed
+	tx = append(tx, uint64_to_buf(1)...)                                  // nonce
 	bin, _ = hex.DecodeString("0000000000000000000000000000000000000000") // template address
 	tx = append(tx, bin...)
-	tx = append(tx, uint64_to_buf(1000000)...) // gas limit
-	tx = append(tx, uint64_to_buf(1000)...) // gas price
+	tx = append(tx, uint64_to_buf(1000000)...)       // gas limit
+	tx = append(tx, uint64_to_buf(1000)...)          // gas price
 	tx = append(tx, uint64_to_buf(1000000000000)...) // amount
 	// call data
 	bin, _ = hex.DecodeString("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000") // bin data

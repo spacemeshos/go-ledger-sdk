@@ -8,21 +8,21 @@ const cTag = 0x05
 const cPacketSize = 64
 
 type Frame struct {
-	data		[]byte
-	dataLength	int
-	sequence	int
+	data       []byte
+	dataLength int
+	sequence   int
 }
 
 // add chink to APDU response
 func (frame *Frame) add(channel int, chunk []byte) (*Frame, error) {
 
-	if chunk[0] != byte((channel >> 8) & 0xff) || chunk[1] != byte(channel & 0xff) {
+	if chunk[0] != byte((channel>>8)&0xff) || chunk[1] != byte(channel&0xff) {
 		return nil, fmt.Errorf("Invalid channel")
 	}
 	if chunk[2] != cTag {
 		return nil, fmt.Errorf("Invalid tag")
 	}
-	if chunk[3] != byte((frame.sequence >> 8) & 0xff) || chunk[4] != byte(frame.sequence & 0xff) {
+	if chunk[3] != byte((frame.sequence>>8)&0xff) || chunk[4] != byte(frame.sequence&0xff) {
 		return nil, fmt.Errorf("Invalid sequence")
 	}
 
@@ -58,14 +58,14 @@ func (frame *Frame) getResult() []byte {
  * @return {error} Error value.
  */
 func (device *HidDevice) exchange(apdu []byte) ([]byte, error) {
-	message := make([]byte, cPacketSize + 1)
+	message := make([]byte, cPacketSize+1)
 	dataLength := len(apdu)
 	chunkLength := dataLength
 	offset := 0
 
 	message[0] = 0
 	// Channel
-        message[1] = byte((device.channel >> 8) & 0xff)
+	message[1] = byte((device.channel >> 8) & 0xff)
 	message[2] = byte(device.channel & 0xff)
 	// Tag
 	message[3] = cTag
@@ -76,32 +76,32 @@ func (device *HidDevice) exchange(apdu []byte) ([]byte, error) {
 	message[6] = byte((dataLength >> 8) & 0xff)
 	message[7] = byte(dataLength & 0xff)
 
-	if chunkLength > cPacketSize - 7 {
+	if chunkLength > cPacketSize-7 {
 		chunkLength = cPacketSize - 7
 	}
 	dataLength -= chunkLength
 
 	copy(message[8:], apdu[offset:chunkLength])
 	// Send first APDU packet
-        if writeLength := device.write(message, chunkLength + 8); writeLength != (chunkLength + 8) && writeLength != (cPacketSize + 1) {
+	if writeLength := device.write(message, chunkLength+8); writeLength != (chunkLength+8) && writeLength != (cPacketSize+1) {
 		return nil, fmt.Errorf("writeHID error %v", writeLength)
 	}
 	offset += chunkLength
 
-	for i := 1 ; dataLength > 0; i++ {
+	for i := 1; dataLength > 0; i++ {
 		// Sequence index for this APDU packet
 		message[4] = byte((i >> 8) & 0xff)
 		message[5] = byte(i & 0xff)
 
 		chunkLength = dataLength
-		if chunkLength > cPacketSize - 5 {
+		if chunkLength > cPacketSize-5 {
 			chunkLength = cPacketSize - 5
 		}
 		dataLength -= chunkLength
 
-		copy(message[6:], apdu[offset:offset + chunkLength])
+		copy(message[6:], apdu[offset:offset+chunkLength])
 		// Send this APDU packet
-	        if writeLength := device.write(message, chunkLength + 6); writeLength != (chunkLength + 6) && writeLength != (cPacketSize + 1) {
+		if writeLength := device.write(message, chunkLength+6); writeLength != (chunkLength+6) && writeLength != (cPacketSize+1) {
 			return nil, fmt.Errorf("writeHID error %v", writeLength)
 		}
 		offset += chunkLength
@@ -112,11 +112,11 @@ func (device *HidDevice) exchange(apdu []byte) ([]byte, error) {
 	var err error
 	frame := &Frame{}
 	for result = frame.getResult(); result == nil; result = frame.getResult() {
-		buffer := device.read();
+		buffer := device.read()
 		if buffer == nil {
 			return nil, fmt.Errorf("Buffer is nil")
 		}
-		frame, err = frame.add(device.channel, buffer);
+		frame, err = frame.add(device.channel, buffer)
 		if err != nil {
 			return nil, err
 		}
