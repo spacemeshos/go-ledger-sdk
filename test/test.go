@@ -43,7 +43,7 @@ func do_test(device *ledger.HidDevice) {
 	if err != nil {
 		fmt.Printf("get address ERROR: %v\n", err)
 	} else {
-		fmt.Printf("address: %+v\n", address)
+		fmt.Printf("address: %x\n", address)
 	}
 	err = device.ShowAddress(ledger.StringToPath("44'/540'/0'/0/1'"))
 	if err != nil {
