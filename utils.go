@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// Parse string to BIP32 path
+// StringToPath Parse string to BIP32 path
 func StringToPath(pathStr string) BipPath {
 	if len(pathStr) == 0 {
 		return nil

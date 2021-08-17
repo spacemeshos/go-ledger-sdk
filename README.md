@@ -6,7 +6,7 @@ A golang SDK for using Ledger wallets from golang Spacemesh wallets such as smre
 Enumerate Ledger devices.
 ```
 /**
- * @param {int} productId USB Product ID filter, 0 - all.
+ * @param {int} productID USB Product ID filter, 0 - all.
  * @return {[]*HidDevice} Discovered Ledger devices.
  *
  * @example
@@ -21,7 +21,7 @@ Enumerate Ledger devices.
  * 	}
  * }
  */
-func GetDevices(productId int) []*HidDevice
+func GetDevices(productID int) []*HidDevice
 ```
 
 Open Ledger device for communication.
@@ -132,7 +132,7 @@ Show an address from the specified BIP 32 path for verify.
 func (device *HidDevice) ShowAddress(path BipPath) error
 ```
 
-Sign an transaction by the specified BIP 32 path account address.
+Sign a transaction by the specified BIP 32 path account address.
 ```
 /**
  * @param {BipPath} path The BIP 32 path indexes. Path must begin with `44'/540'/0'/0/i`

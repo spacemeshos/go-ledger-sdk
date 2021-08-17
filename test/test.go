@@ -8,7 +8,7 @@ import (
 	ledger "github.com/spacemeshos/go-ledger-sdk"
 )
 
-func uint64_to_buf(value uint64) []byte {
+func uint64ToBuf(value uint64) []byte {
 	data := make([]byte, 8)
 	data[0] = byte((value >> 56) & 0xff)
 	data[1] = byte((value >> 48) & 0xff)
@@ -21,7 +21,7 @@ func uint64_to_buf(value uint64) []byte {
 	return data
 }
 
-func do_test(device *ledger.HidDevice) {
+func doTest(device *ledger.HidDevice) {
 	if err := device.Open(); err != nil {
 		return
 	}
@@ -57,12 +57,12 @@ func do_test(device *ledger.HidDevice) {
 	bin, _ = hex.DecodeString("0000000000000000000000000000000000000000000000000000000000000000") // network id
 	tx = append(tx, bin...)
 	tx = append(tx, 0)                                                    // coin transaction with ed
-	tx = append(tx, uint64_to_buf(1)...)                                  // nonce
+	tx = append(tx, uint64ToBuf(1)...)                                  // nonce
 	bin, _ = hex.DecodeString("0000000000000000000000000000000000000000") // recepient
 	tx = append(tx, bin...)
-	tx = append(tx, uint64_to_buf(1000000)...)       // gas limit
-	tx = append(tx, uint64_to_buf(1000)...)          // gas price
-	tx = append(tx, uint64_to_buf(1000000000000)...) // amount
+	tx = append(tx, uint64ToBuf(1000000)...)       // gas limit
+	tx = append(tx, uint64ToBuf(1000)...)          // gas price
+	tx = append(tx, uint64ToBuf(1000000000000)...) // amount
 	tx = append(tx, publicKey.PublicKey...)
 
 	response, err := device.SignTx(ledger.StringToPath("44'/540'/0'/0/0'"), tx)
@@ -77,12 +77,12 @@ func do_test(device *ledger.HidDevice) {
 	bin, _ = hex.DecodeString("0000000000000000000000000000000000000000000000000000000000000000") // network id
 	tx = append(tx, bin...)
 	tx = append(tx, 2)                                                    // exec app transaction with ed
-	tx = append(tx, uint64_to_buf(1)...)                                  // nonce
+	tx = append(tx, uint64ToBuf(1)...)                                  // nonce
 	bin, _ = hex.DecodeString("0000000000000000000000000000000000000000") // app address
 	tx = append(tx, bin...)
-	tx = append(tx, uint64_to_buf(1000000)...)       // gas limit
-	tx = append(tx, uint64_to_buf(1000)...)          // gas price
-	tx = append(tx, uint64_to_buf(1000000000000)...) // amount
+	tx = append(tx, uint64ToBuf(1000000)...)       // gas limit
+	tx = append(tx, uint64ToBuf(1000)...)          // gas price
+	tx = append(tx, uint64ToBuf(1000000000000)...) // amount
 	// call data
 	bin, _ = hex.DecodeString("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000") // bin data
 	tx = append(tx, bin...)
@@ -106,12 +106,12 @@ func do_test(device *ledger.HidDevice) {
 	bin, _ = hex.DecodeString("0000000000000000000000000000000000000000000000000000000000000000") // network id
 	tx = append(tx, bin...)
 	tx = append(tx, 4)                                                    // spawn app + ed
-	tx = append(tx, uint64_to_buf(1)...)                                  // nonce
+	tx = append(tx, uint64ToBuf(1)...)                                  // nonce
 	bin, _ = hex.DecodeString("0000000000000000000000000000000000000000") // template address
 	tx = append(tx, bin...)
-	tx = append(tx, uint64_to_buf(1000000)...)       // gas limit
-	tx = append(tx, uint64_to_buf(1000)...)          // gas price
-	tx = append(tx, uint64_to_buf(1000000000000)...) // amount
+	tx = append(tx, uint64ToBuf(1000000)...)       // gas limit
+	tx = append(tx, uint64ToBuf(1000)...)          // gas price
+	tx = append(tx, uint64ToBuf(1000000000000)...) // amount
 	// call data
 	bin, _ = hex.DecodeString("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000") // bin data
 	tx = append(tx, bin...)
@@ -136,6 +136,6 @@ func main() {
 	devices := ledger.GetDevices(0)
 	for _, device := range devices {
 		fmt.Printf("device: %+v\n", device.Info)
-		do_test(device)
+		doTest(device)
 	}
 }

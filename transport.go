@@ -9,14 +9,14 @@ const (
 	cPacketSize = 64
 )
 
-type Frame struct {
+type apduFrame struct {
 	data       []byte
 	dataLength int
 	sequence   int
 }
 
 // add chink to APDU response
-func (frame *Frame) add(channel int, chunk []byte) (*Frame, error) {
+func (frame *apduFrame) add(channel int, chunk []byte) (*apduFrame, error) {
 
 	if chunk[0] != byte((channel>>8)&0xff) || chunk[1] != byte(channel&0xff) {
 		return nil, fmt.Errorf("Invalid channel")
@@ -46,7 +46,7 @@ func (frame *Frame) add(channel int, chunk []byte) (*Frame, error) {
 }
 
 // returns result if ready
-func (frame *Frame) getResult() []byte {
+func (frame *apduFrame) getResult() []byte {
 	if frame != nil && frame.data != nil && frame.dataLength == len(frame.data) {
 		return frame.data
 	}
@@ -112,7 +112,7 @@ func (device *HidDevice) exchange(apdu []byte) ([]byte, error) {
 	// Read response
 	var result []byte
 	var err error
-	frame := &Frame{}
+	frame := &apduFrame{}
 	for result = frame.getResult(); result == nil; result = frame.getResult() {
 		buffer := device.read()
 		if buffer == nil {

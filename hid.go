@@ -6,18 +6,20 @@ import (
 )
 
 const (
-	LedgerUSBVendorId = 0x2c97
-	READ_BUFF_MAXSIZE = 2048
+	// LedgerUSBVendorID Ledger USB vendor ID
+	LedgerUSBVendorID = 0x2c97
+	// READBUFFMAXSIZE Max read buffer size
+	READBUFFMAXSIZE = 2048
 )
 
-/** hidapi info structure */
+// HidDeviceInfo hidapi info structure
 type HidDeviceInfo struct {
 	/** Platform-specific device path */
 	Path string
 	/** Device Vendor ID */
-	VendorId uint16
+	VendorID uint16
 	/** Device Product ID */
-	ProductId uint16
+	ProductID uint16
 	/** Serial Number */
 	SerialNumber string
 	/** Device Release Number in binary-coded decimal,
@@ -50,7 +52,7 @@ func addbuf(buf []uint16, newcap int) (newbuf []uint16) {
 	return
 }
 
-// Convert UTF16 to string
+// Utf16prt2str Convert UTF16 to string
 func Utf16prt2str(p uintptr) (str string) {
 	len := 0
 	buf := make([]uint16, 64)

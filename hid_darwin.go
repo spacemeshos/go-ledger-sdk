@@ -12,8 +12,7 @@ import (
 	"unsafe"
 )
 
-// Wrapper for HIDAPI library
-
+// HidDevice Wrapper for HIDAPI library
 type HidDevice struct {
 	Info      HidDeviceInfo
 	hidHandle *C.hid_device
@@ -21,6 +20,7 @@ type HidDevice struct {
 	channel int
 }
 
+// Open Open Ledger device for communication.
 /**
  * @description Open Ledger device for communication.
  *
@@ -57,8 +57,8 @@ func (device *HidDevice) closeHandle() {
 }
 
 func (device *HidDevice) read() []byte {
-	buff := make([]byte, READ_BUFF_MAXSIZE)
-	returnedLength := C.hid_read(device.hidHandle, (*C.uchar)(&buff[0]), READ_BUFF_MAXSIZE)
+	buff := make([]byte, READBUFFMAXSIZE)
+	returnedLength := C.hid_read(device.hidHandle, (*C.uchar)(&buff[0]), READBUFFMAXSIZE)
 	if returnedLength == -1 {
 		return nil
 	}
@@ -66,14 +66,15 @@ func (device *HidDevice) read() []byte {
 }
 
 func (device *HidDevice) readTimeout(timeout int) []byte {
-	buff := make([]byte, READ_BUFF_MAXSIZE)
-	returnedLength := C.hid_read_timeout(device.hidHandle, (*C.uchar)(&buff[0]), READ_BUFF_MAXSIZE, C.int(timeout))
+	buff := make([]byte, READBUFFMAXSIZE)
+	returnedLength := C.hid_read_timeout(device.hidHandle, (*C.uchar)(&buff[0]), READBUFFMAXSIZE, C.int(timeout))
 	if returnedLength == -1 {
 		return nil
 	}
 	return buff[:returnedLength]
 }
 
+// Close Close communication with Ledger device.
 /**
  * @description Close communication with Ledger device.
  *
@@ -118,6 +119,7 @@ func (device *HidDevice) write(buffer []byte, writeLength int) int {
 	return int(returnedLength)
 }
 
+// GetDevices Enumerate Ledger devices.
 /**
  * @description Enumerate Ledger devices.
  *
@@ -136,8 +138,8 @@ func (device *HidDevice) write(buffer []byte, writeLength int) int {
  * 	}
  * }
  */
-func GetDevices(productId int) []*HidDevice {
-	devs := C.hid_enumerate(C.ushort(LedgerUSBVendorId), C.ushort(productId))
+func GetDevices(productID int) []*HidDevice {
+	devs := C.hid_enumerate(C.ushort(LedgerUSBVendorID), C.ushort(productID))
 	if devs == nil {
 		return nil
 	}
@@ -155,8 +157,8 @@ func GetDevices(productId int) []*HidDevice {
 			return nil
 		}
 		device.channel = int(b[1])<<8 | int(b[0])
-		device.Info.VendorId = uint16(dev.vendor_id)
-		device.Info.ProductId = uint16(dev.product_id)
+		device.Info.VendorID = uint16(dev.vendor_id)
+		device.Info.ProductID = uint16(dev.product_id)
 		if dev.path != nil {
 			device.Info.Path = C.GoString((*C.char)(dev.path))
 		}

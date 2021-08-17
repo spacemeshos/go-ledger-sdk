@@ -2,29 +2,28 @@ package ledger
 
 import (
 	"fmt"
-	//	"strconv"
-	//	"strings"
 )
 
 const (
 	cCLA = 0x30
-	cMAX_PACKET_LENGTH = 240
+	cMAXPACKETLENGTH = 240
 
-	cINS_GET_VERSION = 0x00
-	cINS_GET_EXT_PUBLIC_KEY = 0x10
-	cINS_GET_ADDRESS = 0x11
-	cINS_SIGN_TX = 0x20
+	cINSGETVERSION = 0x00
+	cINSGETEXTPUBLICKEY = 0x10
+	cINSGETADDRESS = 0x11
+	cINSSIGNTX = 0x20
 
-	cP1_UNUSED = 0x00
-	cP1_RETURN = 0x01
-	cP1_DISPLAY = 0x02
-	cP1_HAS_HEADER = 0x01
-	cP1_HAS_DATA = 0x02
-	cP1_IS_LAST = 0x04
+	cP1UNUSED = 0x00
+	cP1RETURN = 0x01
+	cP1DISPLAY = 0x02
+	cP1HASHEADER = 0x01
+	cP1HASDATA = 0x02
+	cP1ISLAST = 0x04
 
-	cP2_UNUSED = 0x00
+	cP2UNUSED = 0x00
 )
 
+// Version struct
 type Version struct {
 	Major byte
 	Minor byte
@@ -32,11 +31,13 @@ type Version struct {
 	Flags byte
 }
 
+// ExtendedPublicKey struct
 type ExtendedPublicKey struct {
 	PublicKey []byte
 	ChainCode []byte
 }
 
+// BipPath type
 type BipPath []uint32
 
 /**
@@ -104,8 +105,9 @@ func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte)
 	return nil, err
 }
 
+// GetVersion Returns an object containing the app version.
 /**
- * Returns an object containing the app version.
+ * @description Returns an object containing the app version.
  *
  * @returns {Version} Result object containing the application version number.
  * @return {error} Error value.
@@ -119,7 +121,7 @@ func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte)
  * }
  */
 func (device *HidDevice) GetVersion() (*Version, error) {
-	response, err := device.send(cCLA, cINS_GET_VERSION, cP1_UNUSED, cP2_UNUSED, []byte{})
+	response, err := device.send(cCLA, cINSGETVERSION, cP1UNUSED, cP2UNUSED, []byte{})
 	if err != nil {
 		return nil, err
 	}
@@ -134,6 +136,7 @@ func (device *HidDevice) GetVersion() (*Version, error) {
 	}, nil
 }
 
+// GetExtendedPublicKey Get a public key from the specified BIP 32 path.
 /**
  * @description Get a public key from the specified BIP 32 path.
  *
@@ -151,7 +154,7 @@ func (device *HidDevice) GetVersion() (*Version, error) {
  */
 func (device *HidDevice) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey, error) {
 	data := pathToBytes(path)
-	response, err := device.send(cCLA, cINS_GET_EXT_PUBLIC_KEY, cP1_UNUSED, cP2_UNUSED, data)
+	response, err := device.send(cCLA, cINSGETEXTPUBLICKEY, cP1UNUSED, cP2UNUSED, data)
 	if err != nil {
 		return nil, err
 	}
@@ -164,6 +167,7 @@ func (device *HidDevice) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey,
 	}, nil
 }
 
+// GetAddress Gets an address from the specified BIP 32 path.
 /**
  * @description Gets an address from the specified BIP 32 path.
  *
@@ -181,7 +185,7 @@ func (device *HidDevice) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey,
  */
 func (device *HidDevice) GetAddress(path BipPath) ([]byte, error) {
 	data := pathToBytes(path)
-	response, err := device.send(cCLA, cINS_GET_ADDRESS, cP1_RETURN, cP2_UNUSED, data)
+	response, err := device.send(cCLA, cINSGETADDRESS, cP1RETURN, cP2UNUSED, data)
 	if err != nil {
 		return nil, err
 	}
@@ -191,6 +195,7 @@ func (device *HidDevice) GetAddress(path BipPath) ([]byte, error) {
 	return response, nil
 }
 
+// ShowAddress Show an address from the specified BIP 32 path for verify.
 /**
  * @description Show an address from the specified BIP 32 path for verify.
  *
@@ -207,7 +212,7 @@ func (device *HidDevice) GetAddress(path BipPath) ([]byte, error) {
  */
 func (device *HidDevice) ShowAddress(path BipPath) error {
 	data := pathToBytes(path)
-	response, err := device.send(cCLA, cINS_GET_ADDRESS, cP1_DISPLAY, cP2_UNUSED, data)
+	response, err := device.send(cCLA, cINSGETADDRESS, cP1DISPLAY, cP2UNUSED, data)
 	if err != nil {
 		return err
 	}
@@ -218,8 +223,9 @@ func (device *HidDevice) ShowAddress(path BipPath) error {
 	return nil
 }
 
+// SignTx Sign a transaction by the specified BIP 32 path account address.
 /**
- * @description Sign an transaction by the specified BIP 32 path account address.
+ * @description Sign a transaction by the specified BIP 32 path account address.
  *
  * @param {BipPath} path The BIP 32 path indexes. Path must begin with `44'/540'/0'/0/i`
  * @param {[]byte} tx The XDR encoded transaction data, include transaction type
@@ -254,14 +260,14 @@ func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
 	var response []byte
 	var err error
 
-	if len(data) <= cMAX_PACKET_LENGTH {
-		response, err = device.send(cCLA, cINS_SIGN_TX, cP1_HAS_HEADER|cP1_IS_LAST, cP2_UNUSED, data)
+	if len(data) <= cMAXPACKETLENGTH {
+		response, err = device.send(cCLA, cINSSIGNTX, cP1HASHEADER|cP1ISLAST, cP2UNUSED, data)
 	} else {
 		dataSize := len(data)
-		chunkSize := cMAX_PACKET_LENGTH
+		chunkSize := cMAXPACKETLENGTH
 		offset := 0
 		// Send tx header + tx data
-		response, err = device.send(cCLA, cINS_SIGN_TX, cP1_HAS_HEADER|cP1_HAS_DATA, cP2_UNUSED, data[offset:offset+chunkSize])
+		response, err = device.send(cCLA, cINSSIGNTX, cP1HASHEADER|cP1HASDATA, cP2UNUSED, data[offset:offset+chunkSize])
 		if err != nil {
 			return nil, err
 		}
@@ -271,8 +277,8 @@ func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
 		dataSize -= chunkSize
 		offset += chunkSize
 		// Send tx data
-		for dataSize > cMAX_PACKET_LENGTH {
-			response, err = device.send(cCLA, cINS_SIGN_TX, cP1_HAS_DATA, cP2_UNUSED, data[offset:offset+chunkSize])
+		for dataSize > cMAXPACKETLENGTH {
+			response, err = device.send(cCLA, cINSSIGNTX, cP1HASDATA, cP2UNUSED, data[offset:offset+chunkSize])
 			if err != nil {
 				return nil, err
 			}
@@ -282,7 +288,7 @@ func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
 			dataSize -= chunkSize
 			offset += chunkSize
 		}
-		response, err = device.send(cCLA, cINS_SIGN_TX, cP1_IS_LAST, cP2_UNUSED, data[offset:])
+		response, err = device.send(cCLA, cINSSIGNTX, cP1ISLAST, cP2UNUSED, data[offset:])
 	}
 
 	if err != nil {
