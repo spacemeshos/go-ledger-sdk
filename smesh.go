@@ -6,22 +6,24 @@ import (
 	//	"strings"
 )
 
-const CLA = 0x30
-const MAX_PACKET_LENGTH = 240
+const (
+	cCLA = 0x30
+	cMAX_PACKET_LENGTH = 240
 
-const INS_GET_VERSION = 0x00
-const INS_GET_EXT_PUBLIC_KEY = 0x10
-const INS_GET_ADDRESS = 0x11
-const INS_SIGN_TX = 0x20
+	cINS_GET_VERSION = 0x00
+	cINS_GET_EXT_PUBLIC_KEY = 0x10
+	cINS_GET_ADDRESS = 0x11
+	cINS_SIGN_TX = 0x20
 
-const P1_UNUSED = 0x00
-const P1_RETURN = 0x01
-const P1_DISPLAY = 0x02
-const P1_HAS_HEADER = 0x01
-const P1_HAS_DATA = 0x02
-const P1_IS_LAST = 0x04
+	cP1_UNUSED = 0x00
+	cP1_RETURN = 0x01
+	cP1_DISPLAY = 0x02
+	cP1_HAS_HEADER = 0x01
+	cP1_HAS_DATA = 0x02
+	cP1_IS_LAST = 0x04
 
-const P2_UNUSED = 0x00
+	cP2_UNUSED = 0x00
+)
 
 type Version struct {
 	Major byte
@@ -117,7 +119,7 @@ func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte)
  * }
  */
 func (device *HidDevice) GetVersion() (*Version, error) {
-	response, err := device.send(CLA, INS_GET_VERSION, P1_UNUSED, P2_UNUSED, []byte{})
+	response, err := device.send(cCLA, cINS_GET_VERSION, cP1_UNUSED, cP2_UNUSED, []byte{})
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +151,7 @@ func (device *HidDevice) GetVersion() (*Version, error) {
  */
 func (device *HidDevice) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey, error) {
 	data := pathToBytes(path)
-	response, err := device.send(CLA, INS_GET_EXT_PUBLIC_KEY, P1_UNUSED, P2_UNUSED, data)
+	response, err := device.send(cCLA, cINS_GET_EXT_PUBLIC_KEY, cP1_UNUSED, cP2_UNUSED, data)
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +181,7 @@ func (device *HidDevice) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey,
  */
 func (device *HidDevice) GetAddress(path BipPath) ([]byte, error) {
 	data := pathToBytes(path)
-	response, err := device.send(CLA, INS_GET_ADDRESS, P1_RETURN, P2_UNUSED, data)
+	response, err := device.send(cCLA, cINS_GET_ADDRESS, cP1_RETURN, cP2_UNUSED, data)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +207,7 @@ func (device *HidDevice) GetAddress(path BipPath) ([]byte, error) {
  */
 func (device *HidDevice) ShowAddress(path BipPath) error {
 	data := pathToBytes(path)
-	response, err := device.send(CLA, INS_GET_ADDRESS, P1_DISPLAY, P2_UNUSED, data)
+	response, err := device.send(cCLA, cINS_GET_ADDRESS, cP1_DISPLAY, cP2_UNUSED, data)
 	if err != nil {
 		return err
 	}
@@ -252,14 +254,14 @@ func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
 	var response []byte
 	var err error
 
-	if len(data) <= MAX_PACKET_LENGTH {
-		response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_HEADER|P1_IS_LAST, P2_UNUSED, data)
+	if len(data) <= cMAX_PACKET_LENGTH {
+		response, err = device.send(cCLA, cINS_SIGN_TX, cP1_HAS_HEADER|cP1_IS_LAST, cP2_UNUSED, data)
 	} else {
 		dataSize := len(data)
-		chunkSize := MAX_PACKET_LENGTH
+		chunkSize := cMAX_PACKET_LENGTH
 		offset := 0
 		// Send tx header + tx data
-		response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_HEADER|P1_HAS_DATA, P2_UNUSED, data[offset:offset+chunkSize])
+		response, err = device.send(cCLA, cINS_SIGN_TX, cP1_HAS_HEADER|cP1_HAS_DATA, cP2_UNUSED, data[offset:offset+chunkSize])
 		if err != nil {
 			return nil, err
 		}
@@ -269,8 +271,8 @@ func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
 		dataSize -= chunkSize
 		offset += chunkSize
 		// Send tx data
-		for dataSize > MAX_PACKET_LENGTH {
-			response, err = device.send(CLA, INS_SIGN_TX, P1_HAS_DATA, P2_UNUSED, data[offset:offset+chunkSize])
+		for dataSize > cMAX_PACKET_LENGTH {
+			response, err = device.send(cCLA, cINS_SIGN_TX, cP1_HAS_DATA, cP2_UNUSED, data[offset:offset+chunkSize])
 			if err != nil {
 				return nil, err
 			}
@@ -280,7 +282,7 @@ func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
 			dataSize -= chunkSize
 			offset += chunkSize
 		}
-		response, err = device.send(CLA, INS_SIGN_TX, P1_IS_LAST, P2_UNUSED, data[offset:])
+		response, err = device.send(cCLA, cINS_SIGN_TX, cP1_IS_LAST, cP2_UNUSED, data[offset:])
 	}
 
 	if err != nil {

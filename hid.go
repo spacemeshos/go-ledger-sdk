@@ -5,9 +5,10 @@ import (
 	"unsafe"
 )
 
-const LedgerUSBVendorId = 0x2c97
-
-const READ_BUFF_MAXSIZE = 2048
+const (
+	LedgerUSBVendorId = 0x2c97
+	READ_BUFF_MAXSIZE = 2048
+)
 
 /** hidapi info structure */
 type HidDeviceInfo struct {

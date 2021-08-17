@@ -4,8 +4,10 @@ import (
 	"fmt"
 )
 
-const cTag = 0x05
-const cPacketSize = 64
+const (
+	cTag = 0x05
+	cPacketSize = 64
+)
 
 type Frame struct {
 	data       []byte
