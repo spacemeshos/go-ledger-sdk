@@ -12,6 +12,16 @@ const (
 	READBUFFMAXSIZE = 2048
 )
 
+// IHidDevice interface
+type IHidDevice interface {
+	Open() error
+	Close()
+	Write(buffer []byte, writeLength int) int
+	Read() []byte
+	GetChannel() int
+	GetInfo() *HidDeviceInfo
+}
+
 // HidDeviceInfo hidapi info structure
 type HidDeviceInfo struct {
 	/** Platform-specific device path */

@@ -21,7 +21,7 @@ func uint64ToBuf(value uint64) []byte {
 	return data
 }
 
-func doTest(device *ledger.HidDevice) {
+func doTest(device *ledger.Ledger) {
 	if err := device.Open(); err != nil {
 		return
 	}
@@ -247,7 +247,7 @@ func doTest(device *ledger.HidDevice) {
 func main() {
 	devices := ledger.GetDevices(0)
 	for _, device := range devices {
-		fmt.Printf("device: %+v\n", device.Info)
+		fmt.Printf("device: %+v\n", device.GetHidInfo())
 		doTest(device)
 	}
 }

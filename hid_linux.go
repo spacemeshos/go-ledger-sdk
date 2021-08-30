@@ -56,18 +56,10 @@ func (device *HidDevice) closeHandle() {
 	}
 }
 
-func (device *HidDevice) read() []byte {
+// Read Read data from Ledger
+func (device *HidDevice) Read() []byte {
 	buff := make([]byte, READBUFFMAXSIZE)
 	returnedLength := C.hid_read(device.hidHandle, (*C.uchar)(&buff[0]), READBUFFMAXSIZE)
-	if returnedLength == -1 {
-		return nil
-	}
-	return buff[:returnedLength]
-}
-
-func (device *HidDevice) readTimeout(timeout int) []byte {
-	buff := make([]byte, READBUFFMAXSIZE)
-	returnedLength := C.hid_read_timeout(device.hidHandle, (*C.uchar)(&buff[0]), READBUFFMAXSIZE, C.int(timeout))
 	if returnedLength == -1 {
 		return nil
 	}
@@ -94,15 +86,18 @@ func (device *HidDevice) Close() {
 	device.closeHandle()
 }
 
-func (device *HidDevice) setNonBlocking(blockStatus int) bool {
-	res := C.hid_set_nonblocking(device.hidHandle, C.int(blockStatus))
-	if res < 0 {
-		return false
-	}
-	return true
+// GetChannel Get HID device channel
+func (device *HidDevice) GetChannel() int {
+	return device.channel
 }
 
-func (device *HidDevice) write(buffer []byte, writeLength int) int {
+// GetInfo Get HID device info
+func (device *HidDevice) GetInfo() *HidDeviceInfo {
+	return &device.Info
+}
+
+// Write Write data to Ledger
+func (device *HidDevice) Write(buffer []byte, writeLength int) int {
 	if device.hidHandle == nil {
 		return -1
 	}
@@ -138,13 +133,13 @@ func (device *HidDevice) write(buffer []byte, writeLength int) int {
  * 	}
  * }
  */
-func GetDevices(productID int) []*HidDevice {
+func GetDevices(productID int) []*Ledger {
 	devs := C.hid_enumerate(C.ushort(LedgerUSBVendorID), C.ushort(productID))
 	if devs == nil {
 		return nil
 	}
 	defer C.hid_free_enumeration(devs)
-	devices := make([]*HidDevice, 0)
+	devices := make([]*Ledger, 0)
 
 	for dev := devs; dev != nil; dev = dev.next {
 		if dev.usage_page != 65440 {
@@ -173,7 +168,7 @@ func GetDevices(productID int) []*HidDevice {
 		}
 		device.Info.UsagePage = uint16(dev.usage_page)
 		device.Info.Usage = uint16(dev.usage)
-		devices = append(devices, device)
+		devices = append(devices, &Ledger{hid: device})
 	}
 
 	return devices

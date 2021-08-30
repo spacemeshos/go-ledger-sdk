@@ -56,18 +56,10 @@ func (device *HidDevice) closeHandle() {
 	}
 }
 
-func (device *HidDevice) read() []byte {
+// Read Read data from Ledger
+func (device *HidDevice) Read() []byte {
 	buff := make([]byte, READBUFFMAXSIZE)
 	returnedLength := C.hid_read(device.hidHandle, (*C.uchar)(&buff[0]), READBUFFMAXSIZE)
-	if returnedLength == -1 {
-		return nil
-	}
-	return buff[:returnedLength]
-}
-
-func (device *HidDevice) readTimeout(timeout int) []byte {
-	buff := make([]byte, READBUFFMAXSIZE)
-	returnedLength := C.hid_read_timeout(device.hidHandle, (*C.uchar)(&buff[0]), READBUFFMAXSIZE, C.int(timeout))
 	if returnedLength == -1 {
 		return nil
 	}
@@ -94,7 +86,8 @@ func (device *HidDevice) Close() {
 	device.closeHandle()
 }
 
-func (device *HidDevice) write(buffer []byte, writeLength int) int {
+// Write Write data to Ledger
+func (device *HidDevice) Write(buffer []byte, writeLength int) int {
 	if device.hidHandle == nil {
 		return -1
 	}

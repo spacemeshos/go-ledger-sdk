@@ -23,6 +23,11 @@ const (
 	cP2UNUSED = 0x00
 )
 
+// Ledger struct
+type Ledger struct {
+	hid IHidDevice
+}
+
 // Version struct
 type Version struct {
 	Major byte
@@ -44,7 +49,7 @@ type BipPath []uint32
  * Extract return code from response.
  * @param {[]byte} Response data
  * @return {[]byte} Response data without return code
- * @return {error} Error value.
+ * @return {uint32} Error code.
  */
 func stripRetcodeFromResponse(response []byte) ([]byte, uint32) {
 	L := len(response)
@@ -57,6 +62,21 @@ func stripRetcodeFromResponse(response []byte) ([]byte, uint32) {
 	return response[0 : L-2], 0x9000
 }
 
+// GetHidInfo Get HID device info
+func (device *Ledger) GetHidInfo() *HidDeviceInfo {
+	return device.hid.GetInfo()
+}
+
+// Open Open Ledger device
+func (device *Ledger) Open() error {
+	return device.hid.Open()
+}
+
+// Close Close Ledger device
+func (device *Ledger) Close() {
+	device.hid.Close()
+}
+
 /**
  * Wrapper on top of exchange to simplify work of the implementation.
  * @param cla
@@ -67,7 +87,7 @@ func stripRetcodeFromResponse(response []byte) ([]byte, uint32) {
  * @return {[]byte} Response data
  * @return {error} Error value.
  */
-func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte) ([]byte, error) {
+func (device *Ledger) send(cla byte, ins byte, p1 byte, p2 byte, data []byte) ([]byte, error) {
 	if len(data) >= 256 {
 		return nil, fmt.Errorf("DataLengthTooBig: data.length exceed 256 bytes limit. Got: %v", len(data))
 	}
@@ -120,7 +140,7 @@ func (device *HidDevice) send(cla byte, ins byte, p1 byte, p2 byte, data []byte)
  * 	fmt.Printf("version: %+v\n", version)
  * }
  */
-func (device *HidDevice) GetVersion() (*Version, error) {
+func (device *Ledger) GetVersion() (*Version, error) {
 	response, err := device.send(cCLA, cINSGETVERSION, cP1UNUSED, cP2UNUSED, []byte{})
 	if err != nil {
 		return nil, err
@@ -152,7 +172,7 @@ func (device *HidDevice) GetVersion() (*Version, error) {
  * 	fmt.Printf("public key: %+v\n", publicKey)
  * }
  */
-func (device *HidDevice) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey, error) {
+func (device *Ledger) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey, error) {
 	data := pathToBytes(path)
 	response, err := device.send(cCLA, cINSGETEXTPUBLICKEY, cP1UNUSED, cP2UNUSED, data)
 	if err != nil {
@@ -183,7 +203,7 @@ func (device *HidDevice) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey,
  * 	fmt.Printf("address: %+v\n", address)
  * }
  */
-func (device *HidDevice) GetAddress(path BipPath) ([]byte, error) {
+func (device *Ledger) GetAddress(path BipPath) ([]byte, error) {
 	data := pathToBytes(path)
 	response, err := device.send(cCLA, cINSGETADDRESS, cP1RETURN, cP2UNUSED, data)
 	if err != nil {
@@ -210,7 +230,7 @@ func (device *HidDevice) GetAddress(path BipPath) ([]byte, error) {
  * 	fmt.Printf("show address: OK\n")
  * }
  */
-func (device *HidDevice) ShowAddress(path BipPath) error {
+func (device *Ledger) ShowAddress(path BipPath) error {
 	data := pathToBytes(path)
 	response, err := device.send(cCLA, cINSGETADDRESS, cP1DISPLAY, cP2UNUSED, data)
 	if err != nil {
@@ -254,7 +274,7 @@ func (device *HidDevice) ShowAddress(path BipPath) error {
  * 	fmt.Printf("Verify coin tx: %v\n", ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]))
  * }
  */
-func (device *HidDevice) SignTx(path BipPath, tx []byte) ([]byte, error) {
+func (device *Ledger) SignTx(path BipPath, tx []byte) ([]byte, error) {
 	data := pathToBytes(path)
 	data = append(data, tx...)
 	var response []byte
