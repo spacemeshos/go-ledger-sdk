@@ -53,23 +53,23 @@ func (frame *apduFrame) getResult() []byte {
 	return nil
 }
 
+// Exchange Exchange with the device using APDU protocol.
 /**
  * Exchange with the device using APDU protocol.
  * @param apdu
  * @return {[]byte} apdu response
  * @return {error} Error value.
  */
-func (device *Ledger) exchange(apdu []byte) ([]byte, error) {
+func (device *HidDevice) Exchange(apdu []byte) ([]byte, error) {
 	message := make([]byte, cPacketSize+1)
 	dataLength := len(apdu)
 	chunkLength := dataLength
 	offset := 0
-	channel := device.hid.GetChannel()
 
 	message[0] = 0
 	// Channel
-	message[1] = byte((channel >> 8) & 0xff)
-	message[2] = byte(channel & 0xff)
+	message[1] = byte((device.channel >> 8) & 0xff)
+	message[2] = byte(device.channel & 0xff)
 	// Tag
 	message[3] = cTag
 	// Sequence index for first APDU packet
@@ -86,7 +86,7 @@ func (device *Ledger) exchange(apdu []byte) ([]byte, error) {
 
 	copy(message[8:], apdu[offset:chunkLength])
 	// Send first APDU packet
-	if writeLength := device.hid.Write(message, chunkLength+8); writeLength != (chunkLength+8) && writeLength != (cPacketSize+1) {
+	if writeLength := device.write(message, chunkLength+8); writeLength != (chunkLength+8) && writeLength != (cPacketSize+1) {
 		return nil, fmt.Errorf("writeHID error %v", writeLength)
 	}
 	offset += chunkLength
@@ -104,7 +104,7 @@ func (device *Ledger) exchange(apdu []byte) ([]byte, error) {
 
 		copy(message[6:], apdu[offset:offset+chunkLength])
 		// Send this APDU packet
-		if writeLength := device.hid.Write(message, chunkLength+6); writeLength != (chunkLength+6) && writeLength != (cPacketSize+1) {
+		if writeLength := device.write(message, chunkLength+6); writeLength != (chunkLength+6) && writeLength != (cPacketSize+1) {
 			return nil, fmt.Errorf("writeHID error %v", writeLength)
 		}
 		offset += chunkLength
@@ -115,11 +115,11 @@ func (device *Ledger) exchange(apdu []byte) ([]byte, error) {
 	var err error
 	frame := &apduFrame{}
 	for result = frame.getResult(); result == nil; result = frame.getResult() {
-		buffer := device.hid.Read()
+		buffer := device.read()
 		if buffer == nil {
 			return nil, fmt.Errorf("Buffer is nil")
 		}
-		frame, err = frame.add(channel, buffer)
+		frame, err = frame.add(device.channel, buffer)
 		if err != nil {
 			return nil, err
 		}

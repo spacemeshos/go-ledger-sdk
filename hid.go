@@ -16,9 +16,7 @@ const (
 type IHidDevice interface {
 	Open() error
 	Close()
-	Write(buffer []byte, writeLength int) int
-	Read() []byte
-	GetChannel() int
+	Exchange(apdu []byte) ([]byte, error)
 	GetInfo() *HidDeviceInfo
 }
 

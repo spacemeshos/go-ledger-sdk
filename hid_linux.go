@@ -57,7 +57,7 @@ func (device *HidDevice) closeHandle() {
 }
 
 // Read Read data from Ledger
-func (device *HidDevice) Read() []byte {
+func (device *HidDevice) read() []byte {
 	buff := make([]byte, READBUFFMAXSIZE)
 	returnedLength := C.hid_read(device.hidHandle, (*C.uchar)(&buff[0]), READBUFFMAXSIZE)
 	if returnedLength == -1 {
@@ -86,18 +86,13 @@ func (device *HidDevice) Close() {
 	device.closeHandle()
 }
 
-// GetChannel Get HID device channel
-func (device *HidDevice) GetChannel() int {
-	return device.channel
-}
-
 // GetInfo Get HID device info
 func (device *HidDevice) GetInfo() *HidDeviceInfo {
 	return &device.Info
 }
 
 // Write Write data to Ledger
-func (device *HidDevice) Write(buffer []byte, writeLength int) int {
+func (device *HidDevice) write(buffer []byte, writeLength int) int {
 	if device.hidHandle == nil {
 		return -1
 	}

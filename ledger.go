@@ -98,7 +98,7 @@ func (device *Ledger) send(cla byte, ins byte, p1 byte, p2 byte, data []byte) ([
 	buffer[3] = p2
 	buffer[4] = byte(len(data))
 	copy(buffer[5:], data)
-	response, err := device.exchange(buffer)
+	response, err := device.hid.Exchange(buffer)
 	if err == nil {
 		response, status := stripRetcodeFromResponse(response)
 		if status != 0x9000 {
@@ -325,4 +325,9 @@ func (device *Ledger) SignTx(path BipPath, tx []byte) ([]byte, error) {
 	copy(result[65:], tx[1:])
 
 	return result, nil
+}
+
+// NewLedger Create new Ledger
+func NewLedger(hid IHidDevice) *Ledger {
+	return &Ledger{hid: hid}
 }
