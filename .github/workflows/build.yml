@@ -16,6 +16,8 @@ jobs:
       with:
         submodules: true
 
+    - run: sudo apt install libudev-dev
+
     - name: Setup Go
       uses: actions/setup-go@v2
       with:
