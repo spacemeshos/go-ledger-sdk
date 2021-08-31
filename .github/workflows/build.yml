@@ -5,7 +5,6 @@ env:
   ledger-app-version: '0.0.3'
 
 on:
-  pull_request:
   push:
 
 jobs:
@@ -17,10 +16,10 @@ jobs:
       with:
         submodules: true
 
-    - name: Setup Go 1.16.x
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ env.go-version }}
+    - name: Setup Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ env.go-version }}
 
     - name: Download Ledger app
       run: |
