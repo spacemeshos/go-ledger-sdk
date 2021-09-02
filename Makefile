@@ -1,3 +1,9 @@
+install:
+	go run scripts/check-go-version.go --major 1 --minor 15
+	go mod download
+	GO111MODULE=off go get golang.org/x/lint/golint
+.PHONY: install
+
 test-tidy:
 	# Working directory must be clean, or this test would be destructive
 	git diff --quiet || (echo "\033[0;31mWorking directory not clean!\033[0m" && git --no-pager diff && exit 1)
