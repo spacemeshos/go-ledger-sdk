@@ -41,4 +41,3 @@ type HidDeviceInfo struct {
 	    is a USB HID device. */
 	InterfaceNumber int
 }
-
