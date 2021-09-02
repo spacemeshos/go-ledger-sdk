@@ -128,7 +128,7 @@ func (device *HidDevice) write(buffer []byte, writeLength int) int {
  * 	}
  * }
  */
-func GetDevices(productID int) []*HidLedger {
+func GetDevices(productID int) []*Ledger {
 	devs := C.hid_enumerate(C.ushort(LedgerUSBVendorID), C.ushort(productID))
 	if devs == nil {
 		return nil
