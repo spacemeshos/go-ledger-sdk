@@ -24,10 +24,10 @@ jobs:
         go-version: ${{ env.go-version }}
 
     - name: fmt, tidy, lint
-        run: |
-          make test-tidy
-          make test-fmt
-          make lint
+      run: |
+        make test-tidy
+        make test-fmt
+        make lint
 
     - name: Download Ledger app
       run: |
