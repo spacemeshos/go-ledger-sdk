@@ -5,20 +5,20 @@ import (
 )
 
 const (
-	cCLA = 0x30
+	cCLA             = 0x30
 	cMAXPACKETLENGTH = 240
 
-	cINSGETVERSION = 0x00
+	cINSGETVERSION      = 0x00
 	cINSGETEXTPUBLICKEY = 0x10
-	cINSGETADDRESS = 0x11
-	cINSSIGNTX = 0x20
+	cINSGETADDRESS      = 0x11
+	cINSSIGNTX          = 0x20
 
-	cP1UNUSED = 0x00
-	cP1RETURN = 0x01
-	cP1DISPLAY = 0x02
+	cP1UNUSED    = 0x00
+	cP1RETURN    = 0x01
+	cP1DISPLAY   = 0x02
 	cP1HASHEADER = 0x01
-	cP1HASDATA = 0x02
-	cP1ISLAST = 0x04
+	cP1HASDATA   = 0x02
+	cP1ISLAST    = 0x04
 
 	cP2UNUSED = 0x00
 )
@@ -115,7 +115,7 @@ func (device *Ledger) send(cla byte, ins byte, p1 byte, p2 byte, data []byte) ([
 				return response, fmt.Errorf("Request Error 0x6E09: User rejected the action")
 			}
 			if status == 0x6E11 {
-				return response, fmt.Errorf("Request Error 0x6E11: Pin screen", status)
+				return response, fmt.Errorf("Request Error 0x6E11: Pin screen")
 			}
 			return response, fmt.Errorf("Request Error: %x", status)
 		}

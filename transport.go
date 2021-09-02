@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	cTag = 0x05
+	cTag        = 0x05
 	cPacketSize = 64
 )
 

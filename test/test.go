@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"bufio"
+	"bytes"
 	"context"
 	"crypto/sha512"
 	"encoding/hex"
@@ -14,15 +14,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/urfave/cli"
 	"github.com/spacemeshos/ed25519"
 	ledger "github.com/spacemeshos/go-ledger-sdk"
+	"github.com/urfave/cli"
 )
 
 type speculosEvent struct {
-	text string
-	skip bool
-	action func () error
+	text   string
+	skip   bool
+	action func() error
 }
 
 type eventListener interface {
@@ -31,11 +31,11 @@ type eventListener interface {
 
 // Speculos Speculos
 type Speculos struct {
-	Info ledger.HidDeviceInfo
-	step int
+	Info   ledger.HidDeviceInfo
+	step   int
 	events []speculosEvent
-	done bool
-	ready *sync.Cond
+	done   bool
+	ready  *sync.Cond
 }
 
 func uint64ToBuf(value uint64) []byte {
@@ -86,8 +86,8 @@ func doLedgerTest(device *ledger.Ledger) {
 	var bin []byte
 	bin, _ = hex.DecodeString("1835df3489b3a39e0f38a77d347f8327e8937c623543b84bd8734fc237ae3f33") // network id
 	tx = append(tx, bin...)
-	tx = append(tx, 0)                             // coin transaction with ed
-	tx = append(tx, uint64ToBuf(1)...)             // nonce
+	tx = append(tx, 0)                                                    // coin transaction with ed
+	tx = append(tx, uint64ToBuf(1)...)                                    // nonce
 	bin, _ = hex.DecodeString("a47a88814cecde42f2ad0d75123cf530fbe8e594") // recepient
 	tx = append(tx, bin...)
 	tx = append(tx, uint64ToBuf(1000000)...)       // gas limit
@@ -106,8 +106,8 @@ func doLedgerTest(device *ledger.Ledger) {
 	tx = make([]byte, 0)
 	bin, _ = hex.DecodeString("1835df3489b3a39e0f38a77d347f8327e8937c623543b84bd8734fc237ae3f33") // network id
 	tx = append(tx, bin...)
-	tx = append(tx, 2)                             // exec app transaction with ed
-	tx = append(tx, uint64ToBuf(1)...)             // nonce
+	tx = append(tx, 2)                                                    // exec app transaction with ed
+	tx = append(tx, uint64ToBuf(1)...)                                    // nonce
 	bin, _ = hex.DecodeString("a47a88814cecde42f2ad0d75123cf530fbe8e594") // app address
 	tx = append(tx, bin...)
 	tx = append(tx, uint64ToBuf(1000000)...)       // gas limit
@@ -191,8 +191,8 @@ func doLedgerTest(device *ledger.Ledger) {
 	tx = make([]byte, 0)
 	bin, _ = hex.DecodeString("1835df3489b3a39e0f38a77d347f8327e8937c623543b84bd8734fc237ae3f33") // network id
 	tx = append(tx, bin...)
-	tx = append(tx, 4)                             // spawn app + ed
-	tx = append(tx, uint64ToBuf(1)...)             // nonce
+	tx = append(tx, 4)                                                    // spawn app + ed
+	tx = append(tx, uint64ToBuf(1)...)                                    // nonce
 	bin, _ = hex.DecodeString("a47a88814cecde42f2ad0d75123cf530fbe8e594") // template address
 	tx = append(tx, bin...)
 	tx = append(tx, uint64ToBuf(1000000)...)       // gas limit
@@ -276,9 +276,9 @@ func doLedgerTest(device *ledger.Ledger) {
 
 // NewSpeculos NewSpeculos
 func NewSpeculos() *Speculos {
-	return &Speculos {
-		step: -1,
-		done: false,
+	return &Speculos{
+		step:  -1,
+		done:  false,
 		ready: sync.NewCond(&sync.Mutex{}),
 	}
 }
@@ -328,7 +328,7 @@ func (device *Speculos) OnEvent(data map[string]interface{}) bool {
 	if event.action != nil {
 		event.action()
 	}
-	device.step++;
+	device.step++
 	return device.step < len(device.events)
 }
 
@@ -352,7 +352,7 @@ func sendApdu(apdu string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	req, _ := http.NewRequest(http.MethodPost, "http://127.0.0.1:5000/apdu", bytes.NewBuffer([]byte("{\"data\": \"" + apdu + "\"}")))
+	req, _ := http.NewRequest(http.MethodPost, "http://127.0.0.1:5000/apdu", bytes.NewBuffer([]byte("{\"data\": \""+apdu+"\"}")))
 	req.Header.Set("Content-Type", "application/json")
 	req = req.WithContext(ctx)
 
@@ -441,7 +441,7 @@ func (device *Speculos) setupTest(ctx context.Context, events []speculosEvent) {
 				}
 				var event map[string]interface{}
 				json.Unmarshal(line[6:end+1], &event)
-				if (!device.OnEvent(event)) {
+				if !device.OnEvent(event) {
 					// fmt.Printf("Speculos events pump DONE!\n")
 					device.done = true
 					device.ready.Signal()
@@ -482,7 +482,7 @@ func doSpeculosTests() bool {
 	if err != nil {
 		ok = false
 		fmt.Printf("get public key ERROR: %v\n", err)
-		
+
 	} else {
 		key := hex.EncodeToString(publicKey.PublicKey)
 		fmt.Printf("public key: %v\n", key)
@@ -496,7 +496,7 @@ func doSpeculosTests() bool {
 
 	ok = ok && speculos.waitTestDone()
 	if !ok {
-		return false;
+		return false
 	}
 
 	// Test getAddress
@@ -528,7 +528,7 @@ func doSpeculosTests() bool {
 
 	ok = ok && speculos.waitTestDone()
 	if !ok {
-		return false;
+		return false
 	}
 
 	// Test showAddress
@@ -555,7 +555,7 @@ func doSpeculosTests() bool {
 
 	ok = ok && speculos.waitTestDone()
 	if !ok {
-		return false;
+		return false
 	}
 
 	// Test signCoinTx
@@ -584,8 +584,8 @@ func doSpeculosTests() bool {
 	var bin []byte
 	bin, _ = hex.DecodeString("1835df3489b3a39e0f38a77d347f8327e8937c623543b84bd8734fc237ae3f33") // network id
 	tx = append(tx, bin...)
-	tx = append(tx, 0)                             // coin transaction with ed
-	tx = append(tx, uint64ToBuf(1)...)             // nonce
+	tx = append(tx, 0)                                                    // coin transaction with ed
+	tx = append(tx, uint64ToBuf(1)...)                                    // nonce
 	bin, _ = hex.DecodeString("a47a88814cecde42f2ad0d75123cf530fbe8e594") // recepient
 	tx = append(tx, bin...)
 	tx = append(tx, uint64ToBuf(1000000)...)       // gas limit
@@ -609,7 +609,7 @@ func doSpeculosTests() bool {
 
 	ok = ok && speculos.waitTestDone()
 	if !ok {
-		return false;
+		return false
 	}
 
 	// Test signAppTx
@@ -637,8 +637,8 @@ func doSpeculosTests() bool {
 	tx = make([]byte, 0)
 	bin, _ = hex.DecodeString("1835df3489b3a39e0f38a77d347f8327e8937c623543b84bd8734fc237ae3f33") // network id
 	tx = append(tx, bin...)
-	tx = append(tx, 2)                             // exec app transaction with ed
-	tx = append(tx, uint64ToBuf(1)...)             // nonce
+	tx = append(tx, 2)                                                    // exec app transaction with ed
+	tx = append(tx, uint64ToBuf(1)...)                                    // nonce
 	bin, _ = hex.DecodeString("a47a88814cecde42f2ad0d75123cf530fbe8e594") // app address
 	tx = append(tx, bin...)
 	tx = append(tx, uint64ToBuf(1000000)...)       // gas limit
@@ -727,7 +727,7 @@ func doSpeculosTests() bool {
 
 	ok = ok && speculos.waitTestDone()
 	if !ok {
-		return false;
+		return false
 	}
 
 	// Test signSpawnTx
@@ -755,8 +755,8 @@ func doSpeculosTests() bool {
 	tx = make([]byte, 0)
 	bin, _ = hex.DecodeString("1835df3489b3a39e0f38a77d347f8327e8937c623543b84bd8734fc237ae3f33") // network id
 	tx = append(tx, bin...)
-	tx = append(tx, 4)                             // spawn app + ed
-	tx = append(tx, uint64ToBuf(1)...)             // nonce
+	tx = append(tx, 4)                                                    // spawn app + ed
+	tx = append(tx, uint64ToBuf(1)...)                                    // nonce
 	bin, _ = hex.DecodeString("a47a88814cecde42f2ad0d75123cf530fbe8e594") // template address
 	tx = append(tx, bin...)
 	tx = append(tx, uint64ToBuf(1000000)...)       // gas limit
@@ -845,7 +845,7 @@ func doSpeculosTests() bool {
 
 	ok = ok && speculos.waitTestDone()
 	if !ok {
-		return false;
+		return false
 	}
 
 	return ok
@@ -856,13 +856,13 @@ var (
 )
 
 var flags = []cli.Flag{
-    cli.StringFlag{
-        Name:        "target",
-        Usage:       "Run test on phisical device (ledger) or emulator (speculos)",
-        Required:    false,
-        Destination: &targetStringFlag,
-        Value:       "ledger",
-    },
+	cli.StringFlag{
+		Name:        "target",
+		Usage:       "Run test on phisical device (ledger) or emulator (speculos)",
+		Required:    false,
+		Destination: &targetStringFlag,
+		Value:       "ledger",
+	},
 }
 
 func main() {
@@ -872,7 +872,7 @@ func main() {
 	app.Flags = flags
 	app.Writer = os.Stderr
 
-	app.Action = func(ctx *cli.Context) (error) {
+	app.Action = func(ctx *cli.Context) error {
 		if targetStringFlag == "ledger" {
 			devices := ledger.GetDevices(0)
 			if devices == nil || len(devices) == 0 {
@@ -884,7 +884,7 @@ func main() {
 				doLedgerTest(device)
 			}
 		} else if targetStringFlag == "speculos" {
-			if (!doSpeculosTests()) {
+			if !doSpeculosTests() {
 				os.Exit(1)
 			}
 		}
