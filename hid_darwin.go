@@ -152,15 +152,6 @@ func GetDevices(productID int) []*Ledger {
 		if dev.path != nil {
 			device.Info.Path = C.GoString((*C.char)(dev.path))
 		}
-		if dev.serial_number != nil {
-			device.Info.SerialNumber = Utf16prt2str(uintptr(unsafe.Pointer(dev.serial_number)))
-		}
-		if dev.manufacturer_string != nil {
-			device.Info.Manufacturer = Utf16prt2str(uintptr(unsafe.Pointer(dev.manufacturer_string)))
-		}
-		if dev.product_string != nil {
-			device.Info.Product = Utf16prt2str(uintptr(unsafe.Pointer(dev.product_string)))
-		}
 		device.Info.UsagePage = uint16(dev.usage_page)
 		device.Info.Usage = uint16(dev.usage)
 		devices = append(devices, &Ledger{hid: device})
