@@ -25,7 +25,6 @@ jobs:
 
     - name: fmt, tidy, lint
         run: |
-          make
           make test-tidy
           make test-fmt
           make lint
