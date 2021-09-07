@@ -25,10 +25,6 @@ type speculosEvent struct {
 	action func() error
 }
 
-type eventListener interface {
-	OnEvent(event map[string]interface{}) bool
-}
-
 // Speculos Speculos
 type Speculos struct {
 	Info   ledger.HidDeviceInfo
@@ -598,12 +594,13 @@ func doSpeculosTests() bool {
 		ok = false
 		fmt.Printf("Verify coin tx ERROR: %v\n", err)
 	} else {
-		signature := hex.EncodeToString(response[1:65])
-		if signature == "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" {
+		hash := sha512.Sum512(tx)
+		if ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]) {
 			fmt.Printf("Verify coin tx: OK\n")
 		} else {
 			ok = false
-			fmt.Printf("Verify coin tx: OK\n")
+			fmt.Printf("Verify coin tx: WRONG signature\n")
+			fmt.Printf("Signature: %x\n", response[1:65])
 		}
 	}
 
@@ -716,12 +713,13 @@ func doSpeculosTests() bool {
 		ok = false
 		fmt.Printf("Verify app tx ERROR: %v\n", err)
 	} else {
-		signature := hex.EncodeToString(response[1:65])
-		if signature == "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" {
+		hash := sha512.Sum512(tx)
+		if ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]) {
 			fmt.Printf("Verify app tx: OK\n")
 		} else {
 			ok = false
-			fmt.Printf("Verify app tx: OK\n")
+			fmt.Printf("Verify app tx: WRONG signature\n")
+			fmt.Printf("Signature: %x\n", response[1:65])
 		}
 	}
 
@@ -834,12 +832,13 @@ func doSpeculosTests() bool {
 		ok = false
 		fmt.Printf("Verify spawn tx ERROR: %v\n", err)
 	} else {
-		signature := hex.EncodeToString(response[1:65])
-		if signature == "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" {
+		hash := sha512.Sum512(tx)
+		if ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]) {
 			fmt.Printf("Verify spawn tx: OK\n")
 		} else {
 			ok = false
-			fmt.Printf("Verify spawn tx: OK\n")
+			fmt.Printf("Verify spawn tx: WRONG signature\n")
+			fmt.Printf("Signature: %x\n", response[1:65])
 		}
 	}
 
