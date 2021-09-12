@@ -47,33 +47,38 @@ func uint64ToBuf(value uint64) []byte {
 	return data
 }
 
-func doLedgerTest(device *ledger.Ledger) {
+func doLedgerTest(device *ledger.Ledger) bool {
 	if err := device.Open(); err != nil {
-		return
+		fmt.Printf("Open Ledger ERROR: %v\n", err)
+		return false
 	}
 	defer device.Close()
 
 	version, err := device.GetVersion()
 	if err != nil {
 		fmt.Printf("get version ERROR: %v\n", err)
+		return false
 	} else {
 		fmt.Printf("version: %+v\n", version)
 	}
 	publicKey, err := device.GetExtendedPublicKey(ledger.StringToPath("44'/540'/0'/0/0'"))
 	if err != nil {
 		fmt.Printf("get public key ERROR: %v\n", err)
+		return false
 	} else {
 		fmt.Printf("public key: %x\n", publicKey)
 	}
 	address, err := device.GetAddress(ledger.StringToPath("44'/540'/0'/0/0'"))
 	if err != nil {
 		fmt.Printf("get address ERROR: %v\n", err)
+		return false
 	} else {
 		fmt.Printf("address: %x\n", address)
 	}
 	err = device.ShowAddress(ledger.StringToPath("44'/540'/0'/0/0'"))
 	if err != nil {
 		fmt.Printf("show address ERROR: %v\n", err)
+		return false
 	} else {
 		fmt.Printf("show address: OK\n")
 	}
@@ -94,9 +99,15 @@ func doLedgerTest(device *ledger.Ledger) {
 	response, err := device.SignTx(ledger.StringToPath("44'/540'/0'/0/0'"), tx)
 	if err != nil {
 		fmt.Printf("Verify coin tx ERROR: %v\n", err)
+		return false
 	} else {
 		hash := sha512.Sum512(tx)
-		fmt.Printf("Verify coin tx: %v\n", ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]))
+		if ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]) {
+			fmt.Printf("Verify coin tx: OK\n")
+		} else {
+			fmt.Printf("Verify coin tx: FAILED\n")
+			return false
+		}
 	}
 
 	tx = make([]byte, 0)
@@ -179,9 +190,15 @@ func doLedgerTest(device *ledger.Ledger) {
 	response, err = device.SignTx(ledger.StringToPath("44'/540'/0'/0/0'"), tx)
 	if err != nil {
 		fmt.Printf("Verify app tx ERROR: %v\n", err)
+		return false
 	} else {
 		hash := sha512.Sum512(tx)
-		fmt.Printf("Verify app tx: %v\n", ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]))
+		if ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]) {
+			fmt.Printf("Verify app tx: OK\n")
+		} else {
+			fmt.Printf("Verify app tx: FAILED\n")
+			return false
+		}
 	}
 
 	tx = make([]byte, 0)
@@ -264,10 +281,18 @@ func doLedgerTest(device *ledger.Ledger) {
 	response, err = device.SignTx(ledger.StringToPath("44'/540'/0'/0/0'"), tx)
 	if err != nil {
 		fmt.Printf("Verify spawn tx ERROR: %v\n", err)
+		return false
 	} else {
 		hash := sha512.Sum512(tx)
-		fmt.Printf("Verify spawn tx: %v\n", ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]))
+		if ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]) {
+			fmt.Printf("Verify spawn tx: OK\n")
+		} else {
+			fmt.Printf("Verify spawn tx: FAILED\n")
+			return false
+		}
 	}
+
+	return true
 }
 
 // NewSpeculos NewSpeculos
@@ -875,7 +900,7 @@ func main() {
 		if targetStringFlag == "ledger" {
 			devices := ledger.GetDevices(0)
 			if devices == nil || len(devices) == 0 {
-				fmt.Printf("No Ledger Devices Found")
+				fmt.Printf("No Ledger Devices Found\n")
 				os.Exit(1)
 			}
 			for _, device := range devices {

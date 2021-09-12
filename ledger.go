@@ -102,6 +102,9 @@ func (device *Ledger) send(cla byte, ins byte, p1 byte, p2 byte, data []byte) ([
 	if err == nil {
 		response, status := stripRetcodeFromResponse(response)
 		if status != 0x9000 {
+			if status == 0x6E00 {
+				return response, fmt.Errorf("Spacemesh app is not launched")
+			}
 			if status == 0x6E05 {
 				return response, fmt.Errorf("Request Error 0x6E05: P1, P2 or payload is invalid")
 			}
