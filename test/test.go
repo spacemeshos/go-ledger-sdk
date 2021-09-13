@@ -63,7 +63,7 @@ func uint64ToBuf(value uint64) []byte {
 
 func loadTxInfo(fileName string) (*TxInfo, error) {
 	txInfo := &TxInfo{}
-	jsonFile, err := os.Open(fileName)
+	jsonFile, err := os.Open(dataDirStringFlag + string(os.PathSeparator) + fileName)
 	if err != nil {
 		return nil, err
 	}
@@ -435,7 +435,7 @@ func doSpeculosTests() bool {
 		}
 	}
 
-	ok = speculos.waitTestDone() && ok
+	ok = ok && speculos.waitTestDone()
 	if !ok {
 		return false
 	}
@@ -467,7 +467,7 @@ func doSpeculosTests() bool {
 		}
 	}
 
-	ok = speculos.waitTestDone() && ok
+	ok = ok && speculos.waitTestDone()
 	if !ok {
 		return false
 	}
@@ -494,7 +494,7 @@ func doSpeculosTests() bool {
 		fmt.Printf("Show address: OK\n")
 	}
 
-	ok = speculos.waitTestDone() && ok
+	ok = ok && speculos.waitTestDone()
 	if !ok {
 		return false
 	}
@@ -522,7 +522,7 @@ func doSpeculosTests() bool {
 	})
 
 	ok = testTx(device, "coin.tx.json", "coin", publicKey.PublicKey)
-	ok = speculos.waitTestDone() && ok
+	ok = ok && speculos.waitTestDone()
 	if !ok {
 		return false
 	}
@@ -550,7 +550,7 @@ func doSpeculosTests() bool {
 	})
 
 	ok = testTx(device, "app.tx.json", "app", publicKey.PublicKey)
-	ok = speculos.waitTestDone() && ok
+	ok = ok && speculos.waitTestDone()
 	if !ok {
 		return false
 	}
@@ -578,7 +578,7 @@ func doSpeculosTests() bool {
 	})
 
 	ok = testTx(device, "spawn.tx.json", "spawn", publicKey.PublicKey)
-	ok = speculos.waitTestDone() && ok
+	ok = ok && speculos.waitTestDone()
 	if !ok {
 		return false
 	}
@@ -588,6 +588,7 @@ func doSpeculosTests() bool {
 
 var (
 	targetStringFlag string
+	dataDirStringFlag string
 )
 
 var flags = []cli.Flag{
@@ -597,6 +598,13 @@ var flags = []cli.Flag{
 		Required:    false,
 		Destination: &targetStringFlag,
 		Value:       "ledger",
+	},
+	cli.StringFlag{
+		Name:        "data",
+		Usage:       "data directory for tx data",
+		Required:    false,
+		Destination: &dataDirStringFlag,
+		Value:       ".",
 	},
 }
 
