@@ -1,0 +1,9 @@
+{
+    "networkId": "1835df3489b3a39e0f38a77d347f8327e8937c623543b84bd8734fc237ae3f33",
+    "type": 0,
+    "nonce": 1,
+    "to": "a47a88814cecde42f2ad0d75123cf530fbe8e594",
+    "gasLimit": 1000000,
+    "gasPrice": 1000,
+    "amount": 1000000000000
+}
