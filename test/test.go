@@ -39,13 +39,13 @@ type Speculos struct {
 type TxInfo struct {
 	PublicKey []byte
 	NetworkID []byte
-	Type byte
-	Nonce uint64
-	To []byte
-	GasLimit uint64
-	GasPrice uint64
-	Amount uint64
-	Data []byte
+	Type      byte
+	Nonce     uint64
+	To        []byte
+	GasLimit  uint64
+	GasPrice  uint64
+	Amount    uint64
+	Data      []byte
 }
 
 func uint64ToBuf(value uint64) []byte {
@@ -114,7 +114,7 @@ func loadTxInfo(fileName string) (*TxInfo, error) {
 	if array, ok := data["data"]; ok {
 		txInfo.Data = make([]byte, 0)
 		items := array.([]interface{})
-		for _, item := range(items) {
+		for _, item := range items {
 			bin, err := hex.DecodeString(item.(string))
 			if err != nil {
 				return nil, err
