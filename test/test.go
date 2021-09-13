@@ -587,7 +587,7 @@ func doSpeculosTests() bool {
 }
 
 var (
-	targetStringFlag string
+	targetStringFlag  string
 	dataDirStringFlag string
 )
 
