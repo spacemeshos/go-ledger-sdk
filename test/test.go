@@ -58,30 +58,29 @@ func doLedgerTest(device *ledger.Ledger) bool {
 	if err != nil {
 		fmt.Printf("get version ERROR: %v\n", err)
 		return false
-	} else {
-		fmt.Printf("version: %+v\n", version)
 	}
+	fmt.Printf("version: %+v\n", version)
+
 	publicKey, err := device.GetExtendedPublicKey(ledger.StringToPath("44'/540'/0'/0/0'"))
 	if err != nil {
 		fmt.Printf("get public key ERROR: %v\n", err)
 		return false
-	} else {
-		fmt.Printf("public key: %x\n", publicKey)
 	}
+	fmt.Printf("public key: %x\n", publicKey)
+
 	address, err := device.GetAddress(ledger.StringToPath("44'/540'/0'/0/0'"))
 	if err != nil {
 		fmt.Printf("get address ERROR: %v\n", err)
 		return false
-	} else {
-		fmt.Printf("address: %x\n", address)
 	}
+	fmt.Printf("address: %x\n", address)
+
 	err = device.ShowAddress(ledger.StringToPath("44'/540'/0'/0/0'"))
 	if err != nil {
 		fmt.Printf("show address ERROR: %v\n", err)
 		return false
-	} else {
-		fmt.Printf("show address: OK\n")
 	}
+	fmt.Printf("show address: OK\n")
 
 	tx := make([]byte, 0)
 	var bin []byte
@@ -97,10 +96,7 @@ func doLedgerTest(device *ledger.Ledger) bool {
 	tx = append(tx, publicKey.PublicKey...)
 
 	response, err := device.SignTx(ledger.StringToPath("44'/540'/0'/0/0'"), tx)
-	if err != nil {
-		fmt.Printf("Verify coin tx ERROR: %v\n", err)
-		return false
-	} else {
+	if err == nil {
 		hash := sha512.Sum512(tx)
 		if ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]) {
 			fmt.Printf("Verify coin tx: OK\n")
@@ -108,6 +104,9 @@ func doLedgerTest(device *ledger.Ledger) bool {
 			fmt.Printf("Verify coin tx: FAILED\n")
 			return false
 		}
+	} else {
+		fmt.Printf("Verify coin tx ERROR: %v\n", err)
+		return false
 	}
 
 	tx = make([]byte, 0)
@@ -188,10 +187,7 @@ func doLedgerTest(device *ledger.Ledger) bool {
 	tx = append(tx, publicKey.PublicKey...)
 
 	response, err = device.SignTx(ledger.StringToPath("44'/540'/0'/0/0'"), tx)
-	if err != nil {
-		fmt.Printf("Verify app tx ERROR: %v\n", err)
-		return false
-	} else {
+	if err == nil {
 		hash := sha512.Sum512(tx)
 		if ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]) {
 			fmt.Printf("Verify app tx: OK\n")
@@ -199,6 +195,9 @@ func doLedgerTest(device *ledger.Ledger) bool {
 			fmt.Printf("Verify app tx: FAILED\n")
 			return false
 		}
+	} else {
+		fmt.Printf("Verify app tx ERROR: %v\n", err)
+		return false
 	}
 
 	tx = make([]byte, 0)
@@ -279,10 +278,7 @@ func doLedgerTest(device *ledger.Ledger) bool {
 	tx = append(tx, publicKey.PublicKey...)
 
 	response, err = device.SignTx(ledger.StringToPath("44'/540'/0'/0/0'"), tx)
-	if err != nil {
-		fmt.Printf("Verify spawn tx ERROR: %v\n", err)
-		return false
-	} else {
+	if err == nil {
 		hash := sha512.Sum512(tx)
 		if ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]) {
 			fmt.Printf("Verify spawn tx: OK\n")
@@ -290,6 +286,9 @@ func doLedgerTest(device *ledger.Ledger) bool {
 			fmt.Printf("Verify spawn tx: FAILED\n")
 			return false
 		}
+	} else {
+		fmt.Printf("Verify spawn tx ERROR: %v\n", err)
+		return false
 	}
 
 	return true
@@ -503,7 +502,6 @@ func doSpeculosTests() bool {
 	if err != nil {
 		ok = false
 		fmt.Printf("get public key ERROR: %v\n", err)
-
 	} else {
 		key := hex.EncodeToString(publicKey.PublicKey)
 		fmt.Printf("public key: %v\n", key)
