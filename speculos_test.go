@@ -12,8 +12,8 @@ import (
 	"net/http"
 	"strings"
 	"sync"
-	"time"
 	"testing"
+	"time"
 )
 
 type speculosEvent struct {
