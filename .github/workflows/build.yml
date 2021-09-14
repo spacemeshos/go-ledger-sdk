@@ -43,4 +43,4 @@ jobs:
       run: .github/tools/wait-speculos.sh
 
     - name: Run tests
-      run: go run test/test.go -target speculos -data ./test
+      run: go test -v -tags=speculos

@@ -322,8 +322,6 @@ func (device *Ledger) SignTx(path BipPath, tx []byte) ([]byte, error) {
 		return nil, fmt.Errorf("Wrong response length: expected 96, got %v", len(response))
 	}
 
-	fmt.Printf("Response: %x\n", response)
-
 	result := make([]byte, 64+32+1)
 	result[0] = tx[33]
 	copy(result[1:], response[:64])
