@@ -117,9 +117,12 @@ func createTx(txInfo *txInfo) []byte {
 	return tx
 }
 
-func testTx(t *testing.T, device *Ledger, txInfoFileName string, txType string, publicKey []byte) bool {
+func testTx(t *testing.T, device *Ledger, txInfoFileName string, txType string, publicKey []byte, callback func(txInfo *txInfo)) bool {
 	if txInfo, err := loadTxInfo(txInfoFileName); err == nil {
 		txInfo.PublicKey = publicKey
+		if callback != nil {
+			callback(txInfo)
+		}
 		tx := createTx(txInfo)
 		response, err := device.SignTx(StringToPath("44'/540'/0'/0/0'"), tx)
 		if err == nil {

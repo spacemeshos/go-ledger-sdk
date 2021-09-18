@@ -332,7 +332,7 @@ func doSpeculosTests(t *testing.T) bool {
 		{text: "is ready"},
 	})
 
-	ok = testTx(t, device, "coin.tx.json", "coin", publicKey.PublicKey)
+	ok = testTx(t, device, "coin.tx.json", "coin", publicKey.PublicKey, nil)
 	ok = ok && speculos.waitTestDone()
 	if !ok {
 		return false
@@ -360,7 +360,7 @@ func doSpeculosTests(t *testing.T) bool {
 		{text: "is ready"},
 	})
 
-	ok = testTx(t, device, "app.tx.json", "app", publicKey.PublicKey)
+	ok = testTx(t, device, "app.tx.json", "app", publicKey.PublicKey, nil)
 	ok = ok && speculos.waitTestDone()
 	if !ok {
 		return false
@@ -388,7 +388,7 @@ func doSpeculosTests(t *testing.T) bool {
 		{text: "is ready"},
 	})
 
-	ok = testTx(t, device, "spawn.tx.json", "spawn", publicKey.PublicKey)
+	ok = testTx(t, device, "spawn.tx.json", "spawn", publicKey.PublicKey, nil)
 	ok = ok && speculos.waitTestDone()
 	if !ok {
 		return false
