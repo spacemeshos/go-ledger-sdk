@@ -58,8 +58,8 @@ func (device *HidDevice) closeHandle() {
 
 // Read Read data from Ledger
 func (device *HidDevice) read() []byte {
-	buff := make([]byte, READBUFFMAXSIZE)
-	returnedLength := C.hid_read(device.hidHandle, (*C.uchar)(&buff[0]), READBUFFMAXSIZE)
+	buff := make([]byte, ReadBuffMaxSize)
+	returnedLength := C.hid_read(device.hidHandle, (*C.uchar)(&buff[0]), ReadBuffMaxSize)
 	if returnedLength == -1 {
 		return nil
 	}

@@ -6,21 +6,21 @@ import (
 
 const (
 	cCLA             = 0x30
-	cMAXPACKETLENGTH = 240
+	cMaxPacketLength = 240
 
-	cINSGETVERSION      = 0x00
-	cINSGETEXTPUBLICKEY = 0x10
-	cINSGETADDRESS      = 0x11
-	cINSSIGNTX          = 0x20
+	cInsGetVersion      = 0x00
+	cInsGetExtPublicKey = 0x10
+	cInsGetAddress      = 0x11
+	cInsSignTx          = 0x20
 
-	cP1UNUSED    = 0x00
-	cP1RETURN    = 0x01
-	cP1DISPLAY   = 0x02
-	cP1HASHEADER = 0x01
-	cP1HASDATA   = 0x02
-	cP1ISLAST    = 0x04
+	cP1Unused    = 0x00
+	cP1Return    = 0x01
+	cP1Display   = 0x02
+	cP1HasHeader = 0x01
+	cP1HasData   = 0x02
+	cP1IsLast    = 0x04
 
-	cP2UNUSED = 0x00
+	cP2Unused = 0x00
 )
 
 // Ledger struct
@@ -144,7 +144,7 @@ func (device *Ledger) send(cla byte, ins byte, p1 byte, p2 byte, data []byte) ([
  * }
  */
 func (device *Ledger) GetVersion() (*Version, error) {
-	response, err := device.send(cCLA, cINSGETVERSION, cP1UNUSED, cP2UNUSED, []byte{})
+	response, err := device.send(cCLA, cInsGetVersion, cP1Unused, cP2Unused, []byte{})
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (device *Ledger) GetVersion() (*Version, error) {
  */
 func (device *Ledger) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey, error) {
 	data := pathToBytes(path)
-	response, err := device.send(cCLA, cINSGETEXTPUBLICKEY, cP1UNUSED, cP2UNUSED, data)
+	response, err := device.send(cCLA, cInsGetExtPublicKey, cP1Unused, cP2Unused, data)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +208,7 @@ func (device *Ledger) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey, er
  */
 func (device *Ledger) GetAddress(path BipPath) ([]byte, error) {
 	data := pathToBytes(path)
-	response, err := device.send(cCLA, cINSGETADDRESS, cP1RETURN, cP2UNUSED, data)
+	response, err := device.send(cCLA, cInsGetAddress, cP1Return, cP2Unused, data)
 	if err != nil {
 		return nil, err
 	}
@@ -235,7 +235,7 @@ func (device *Ledger) GetAddress(path BipPath) ([]byte, error) {
  */
 func (device *Ledger) ShowAddress(path BipPath) error {
 	data := pathToBytes(path)
-	response, err := device.send(cCLA, cINSGETADDRESS, cP1DISPLAY, cP2UNUSED, data)
+	response, err := device.send(cCLA, cInsGetAddress, cP1Display, cP2Unused, data)
 	if err != nil {
 		return err
 	}
@@ -283,14 +283,14 @@ func (device *Ledger) SignTx(path BipPath, tx []byte) ([]byte, error) {
 	var response []byte
 	var err error
 
-	if len(data) <= cMAXPACKETLENGTH {
-		response, err = device.send(cCLA, cINSSIGNTX, cP1HASHEADER|cP1ISLAST, cP2UNUSED, data)
+	if len(data) <= cMaxPacketLength {
+		response, err = device.send(cCLA, cInsSignTx, cP1HasHeader|cP1IsLast, cP2Unused, data)
 	} else {
 		dataSize := len(data)
-		chunkSize := cMAXPACKETLENGTH
+		chunkSize := cMaxPacketLength
 		offset := 0
 		// Send tx header + tx data
-		response, err = device.send(cCLA, cINSSIGNTX, cP1HASHEADER|cP1HASDATA, cP2UNUSED, data[offset:offset+chunkSize])
+		response, err = device.send(cCLA, cInsSignTx, cP1HasHeader|cP1HasData, cP2Unused, data[offset:offset+chunkSize])
 		if err != nil {
 			return nil, err
 		}
@@ -300,8 +300,8 @@ func (device *Ledger) SignTx(path BipPath, tx []byte) ([]byte, error) {
 		dataSize -= chunkSize
 		offset += chunkSize
 		// Send tx data
-		for dataSize > cMAXPACKETLENGTH {
-			response, err = device.send(cCLA, cINSSIGNTX, cP1HASDATA, cP2UNUSED, data[offset:offset+chunkSize])
+		for dataSize > cMaxPacketLength {
+			response, err = device.send(cCLA, cInsSignTx, cP1HasData, cP2Unused, data[offset:offset+chunkSize])
 			if err != nil {
 				return nil, err
 			}
@@ -311,7 +311,7 @@ func (device *Ledger) SignTx(path BipPath, tx []byte) ([]byte, error) {
 			dataSize -= chunkSize
 			offset += chunkSize
 		}
-		response, err = device.send(cCLA, cINSSIGNTX, cP1ISLAST, cP2UNUSED, data[offset:])
+		response, err = device.send(cCLA, cInsSignTx, cP1IsLast, cP2Unused, data[offset:])
 	}
 
 	if err != nil {

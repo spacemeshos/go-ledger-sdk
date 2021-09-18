@@ -3,8 +3,8 @@ package ledger
 const (
 	// LedgerUSBVendorID Ledger USB vendor ID
 	LedgerUSBVendorID = 0x2c97
-	// READBUFFMAXSIZE Max read buffer size
-	READBUFFMAXSIZE = 2048
+	// ReadBuffMaxSize Max read buffer size
+	ReadBuffMaxSize = 2048
 )
 
 // IHidDevice interface
