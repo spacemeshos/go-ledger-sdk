@@ -16,12 +16,14 @@ import (
 	"time"
 )
 
+// Speculos event description struct
 type speculosEvent struct {
 	text   string
 	skip   bool
 	action func() error
 }
 
+// Speculos object struct
 type speculos struct {
 	Info   HidDeviceInfo
 	step   int
@@ -30,7 +32,7 @@ type speculos struct {
 	ready  *sync.Cond
 }
 
-// NewSpeculos NewSpeculos
+// Create new Speculos object
 func newSpeculos() *speculos {
 	return &speculos{
 		step:  -1,
@@ -39,22 +41,22 @@ func newSpeculos() *speculos {
 	}
 }
 
-// Open Open
+// Open dummy method for Speculos
 func (device *speculos) Open() error {
 	return nil
 }
 
-// Close Close
+// Close  dummy method for Speculos
 func (device *speculos) Close() {
 }
 
-// GetInfo GetInfo
+// GetInfo dummy method for Speculos
 func (device *speculos) GetInfo() *HidDeviceInfo {
 	return &device.Info
 }
 
-// OnEvent OnEvent
-func (device *speculos) OnEvent(data map[string]interface{}) bool {
+// Processing Speculos events
+func (device *speculos) onEvent(data map[string]interface{}) bool {
 	textField, ok := data["text"]
 	if !ok {
 		panic("No 'text' field")
@@ -88,6 +90,7 @@ func (device *speculos) OnEvent(data map[string]interface{}) bool {
 	return device.step < len(device.events)
 }
 
+// HTTP Post method implementation for sending data to Speculos
 func post(url string, data string) (map[string]interface{}, error) {
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer([]byte(data)))
 
@@ -104,6 +107,7 @@ func post(url string, data string) (map[string]interface{}, error) {
 	return res, nil
 }
 
+// Send APDU packet to Speculos
 func sendApdu(apdu string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -128,22 +132,25 @@ func sendApdu(apdu string) (string, error) {
 	return data, nil
 }
 
+// Emulate of press left button on Ledger
 func pressLeft() error {
 	_, err := post("http://127.0.0.1:5000/button/left", "{\"action\":\"press-and-release\"}")
 	return err
 }
 
+// Emulate of press both buttons on Ledger
 func pressBoth() error {
 	_, err := post("http://127.0.0.1:5000/button/both", "{\"action\":\"press-and-release\"}")
 	return err
 }
 
+// Emulate of press right button on Ledger
 func pressRight() error {
 	_, err := post("http://127.0.0.1:5000/button/right", "{\"action\":\"press-and-release\"}")
 	return err
 }
 
-// Exchange Exchange
+// Exchange APDU packets with Speculos
 func (device *speculos) Exchange(apdu []byte) ([]byte, error) {
 	hexData, err := sendApdu(hex.EncodeToString(apdu))
 	if err != nil {
@@ -156,6 +163,7 @@ func (device *speculos) Exchange(apdu []byte) ([]byte, error) {
 	return data, nil
 }
 
+// Prepare the device for testing and start the Speculoos event pump.
 func (device *speculos) setupTest(ctx context.Context, events []speculosEvent) {
 	device.step = -1
 	device.events = events
@@ -194,7 +202,7 @@ func (device *speculos) setupTest(ctx context.Context, events []speculosEvent) {
 				}
 				var event map[string]interface{}
 				json.Unmarshal(line[6:end+1], &event)
-				if !device.OnEvent(event) {
+				if !device.onEvent(event) {
 					// t.Logf("Speculos events pump DONE!\n")
 					device.done = true
 					device.ready.Signal()
@@ -205,6 +213,7 @@ func (device *speculos) setupTest(ctx context.Context, events []speculosEvent) {
 	}()
 }
 
+// Wait for a test to complete
 func (device *speculos) waitTestDone() bool {
 	device.ready.L.Lock()
 	device.ready.Wait()
@@ -212,6 +221,7 @@ func (device *speculos) waitTestDone() bool {
 	return device.done
 }
 
+// Run tests on Speculos emilator
 func doSpeculosTests(t *testing.T) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
@@ -219,7 +229,8 @@ func doSpeculosTests(t *testing.T) bool {
 	ok := true
 	speculos := newSpeculos()
 	device := NewLedger(speculos)
-	// Test getExtendedPublicKey
+	
+	// run GetExtendedPublicKey test
 	speculos.setupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
@@ -251,7 +262,7 @@ func doSpeculosTests(t *testing.T) bool {
 		return false
 	}
 
-	// Test getAddress
+	// run GetAddress test
 	speculos.setupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
@@ -283,7 +294,7 @@ func doSpeculosTests(t *testing.T) bool {
 		return false
 	}
 
-	// Test showAddress
+	// run ShowAddress test
 	speculos.setupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
@@ -310,7 +321,7 @@ func doSpeculosTests(t *testing.T) bool {
 		return false
 	}
 
-	// Test signCoinTx
+	// run Sign coin transaction test
 	speculos.setupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
@@ -338,7 +349,7 @@ func doSpeculosTests(t *testing.T) bool {
 		return false
 	}
 
-	// Test signAppTx
+	// run Sign app transaction test
 	speculos.setupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
@@ -366,7 +377,7 @@ func doSpeculosTests(t *testing.T) bool {
 		return false
 	}
 
-	// Test signSpawnTx
+	// run Sign spawn transaction test
 	speculos.setupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
@@ -397,6 +408,7 @@ func doSpeculosTests(t *testing.T) bool {
 	return ok
 }
 
+// Main Speculos test route
 func TestSpeculos(t *testing.T) {
 	if !doSpeculosTests(t) {
 		t.FailNow()

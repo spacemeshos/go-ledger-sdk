@@ -21,23 +21,21 @@ type HidDevice struct {
 }
 
 // Open Open Ledger device for communication.
-/**
- * @description Open Ledger device for communication.
- *
- * @return {error} Error value.
- *
- * @example
- * devices := ledger.GetDevices(0)
- * if devices != nil && len(devices) > 0 {
- * 	device := devices[0]
- * 	if err := device.Open(); err == nil {
- * 		...
- * 		device.Close()
- * 	} else {
- * 		fmt.Printf("Open device ERROR: %v\n", err)
- * 	}
- * }
- */
+//
+// return {error} Error value.
+//
+// example
+// devices := ledger.GetDevices(0)
+// if devices != nil && len(devices) > 0 {
+// 	device := devices[0]
+// 	if err := device.Open(); err == nil {
+// 		...
+// 		device.Close()
+// 	} else {
+// 		fmt.Printf("Open device ERROR: %v\n", err)
+// 	}
+// }
+//
 func (device *HidDevice) Open() error {
 	device.closeHandle()
 	path := C.CString(device.Info.Path)
@@ -67,21 +65,19 @@ func (device *HidDevice) read() []byte {
 }
 
 // Close Close communication with Ledger device.
-/**
- * @description Close communication with Ledger device.
- *
- * @example
- * devices := ledger.GetDevices(0)
- * if devices != nil && len(devices) > 0 {
- * 	device := devices[0]
- * 	if err := device.Open(); err == nil {
- * 		...
- * 		device.Close()
- * 	} else {
- * 		fmt.Printf("Open device ERROR: %v\n", err)
- * 	}
- * }
- */
+//
+// example
+// devices := ledger.GetDevices(0)
+// if devices != nil && len(devices) > 0 {
+// 	device := devices[0]
+// 	if err := device.Open(); err == nil {
+// 		...
+// 		device.Close()
+// 	} else {
+// 		fmt.Printf("Open device ERROR: %v\n", err)
+// 	}
+// }
+//
 func (device *HidDevice) Close() {
 	device.closeHandle()
 }
@@ -110,24 +106,22 @@ func (device *HidDevice) write(buffer []byte, writeLength int) int {
 }
 
 // GetDevices Enumerate Ledger devices.
-/**
- * @description Enumerate Ledger devices.
- *
- * @param {int} productId USB Product ID filter, 0 - all.
- * @return {[]*HidDevice} Discovered Ledger devices.
- *
- * @example
- * devices := ledger.GetDevices(0)
- * if devices != nil && len(devices) > 0 {
- * 	device := devices[0]
- * 	if err := device.Open(); err == nil {
- * 		...
- * 		device.Close()
- * 	} else {
- * 		fmt.Printf("Open device ERROR: %v\n", err)
- * 	}
- * }
- */
+//
+// param {int} productId USB Product ID filter, 0 - all.
+// return {[]*HidDevice} Discovered Ledger devices.
+//
+// example
+// devices := ledger.GetDevices(0)
+// if devices != nil && len(devices) > 0 {
+// 	device := devices[0]
+// 	if err := device.Open(); err == nil {
+// 		...
+// 		device.Close()
+// 	} else {
+// 		fmt.Printf("Open device ERROR: %v\n", err)
+// 	}
+// }
+//
 func GetDevices(productID int) []*Ledger {
 	devs := C.hid_enumerate(C.ushort(LedgerUSBVendorID), C.ushort(productID))
 	if devs == nil {

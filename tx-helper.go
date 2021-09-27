@@ -11,6 +11,7 @@ import (
 	"github.com/spacemeshos/ed25519"
 )
 
+// Transaction info struct
 type txInfo struct {
 	PublicKey []byte
 	NetworkID []byte
@@ -23,6 +24,7 @@ type txInfo struct {
 	Data      []byte
 }
 
+// Convert uint64 value to byte array
 func uint64ToBuf(value uint64) []byte {
 	data := make([]byte, 8)
 	data[0] = byte((value >> 56) & 0xff)
@@ -36,6 +38,7 @@ func uint64ToBuf(value uint64) []byte {
 	return data
 }
 
+// Load transactoin info from JSON file
 func loadTxInfo(fileName string) (*txInfo, error) {
 	txInfo := &txInfo{}
 	jsonFile, err := os.Open("./test" + string(os.PathSeparator) + fileName)
@@ -101,6 +104,7 @@ func loadTxInfo(fileName string) (*txInfo, error) {
 	return txInfo, nil
 }
 
+// Convert transaction info to byte array
 func createTx(txInfo *txInfo) []byte {
 	tx := make([]byte, 0)
 	tx = append(tx, txInfo.NetworkID...)
@@ -117,6 +121,7 @@ func createTx(txInfo *txInfo) []byte {
 	return tx
 }
 
+// Do transaction test
 func testTx(t *testing.T, device *Ledger, txInfoFileName string, txType string, publicKey []byte, callback func(txInfo *txInfo)) bool {
 	if txInfo, err := loadTxInfo(txInfoFileName); err == nil {
 		txInfo.PublicKey = publicKey

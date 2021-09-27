@@ -9,6 +9,7 @@ const (
 	cPacketSize = 64
 )
 
+// APDU frame buffer struct
 type apduFrame struct {
 	data       []byte
 	dataLength int
@@ -54,12 +55,10 @@ func (frame *apduFrame) getResult() []byte {
 }
 
 // Exchange Exchange with the device using APDU protocol.
-/**
- * Exchange with the device using APDU protocol.
- * @param apdu
- * @return {[]byte} apdu response
- * @return {error} Error value.
- */
+// param apdu
+// return {[]byte} apdu response
+// return {error} Error value.
+//
 func (device *HidDevice) Exchange(apdu []byte) ([]byte, error) {
 	message := make([]byte, cPacketSize+1)
 	dataLength := len(apdu)
