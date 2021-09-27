@@ -229,7 +229,7 @@ func doSpeculosTests(t *testing.T) bool {
 	ok := true
 	speculos := newSpeculos()
 	device := NewLedger(speculos)
-	
+
 	// run GetExtendedPublicKey test
 	speculos.setupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},

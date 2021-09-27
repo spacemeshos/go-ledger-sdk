@@ -6,31 +6,31 @@ import (
 
 const (
 	// Spacemesh Application Identifier
-	cCLA             = 0x30
+	cCLA = 0x30
 	// Max length of APDU packet supported by Ledger device
 	cMaxPacketLength = 240
 
 	// Instruction code for GetVersion command
-	cInsGetVersion      = 0x00
+	cInsGetVersion = 0x00
 	// Instruction code for GetExtPublicKey command
 	cInsGetExtPublicKey = 0x10
 	// Instruction code for GetAddress command
-	cInsGetAddress      = 0x11
+	cInsGetAddress = 0x11
 	// Instruction code for SignTx command
-	cInsSignTx          = 0x20
+	cInsSignTx = 0x20
 
 	// Parameter 1 is unused
-	cP1Unused    = 0x00
+	cP1Unused = 0x00
 	// Request type for GetAddress command: returning address to host
-	cP1Return    = 0x01
+	cP1Return = 0x01
 	// Request type for GetAddress command: displaying address on the screen
-	cP1Display   = 0x02
+	cP1Display = 0x02
 	// Request Flag for SignTx command: data has transaction header
 	cP1HasHeader = 0x01
 	// Request Flag for SignTx command: data has transaction data
-	cP1HasData   = 0x02
+	cP1HasData = 0x02
 	// Request Flag for SignTx command: last request
-	cP1IsLast    = 0x04
+	cP1IsLast = 0x04
 
 	// Parameter 2 is unused
 	cP2Unused = 0x00
