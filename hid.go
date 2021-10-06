@@ -1,7 +1,7 @@
 package ledger
 
 const (
-	// LedgerUSBVendorID Ledger USB vendor ID
+	// LedgerUSBVendorID allows identifying USB devices made by Ledger.
 	LedgerUSBVendorID = 0x2c97
 	// ReadBuffMaxSize Max read buffer size
 	ReadBuffMaxSize = 2048
