@@ -325,8 +325,7 @@ func (device *Ledger) SignTx(path BipPath, tx []byte) ([]byte, error) {
 
 	result := make([]byte, 64+32+1)
 	result[0] = tx[33]
-	copy(result[1:], response[:64])
-	copy(result[65:], response[64:])
+	copy(result[1:], response)
 
 	return result, nil
 }

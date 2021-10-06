@@ -1,6 +1,7 @@
 package ledger
 
 import (
+	"encoding/binary"
 	"strconv"
 	"strings"
 )
@@ -38,10 +39,7 @@ func pathToBytes(path BipPath) []byte {
 	data[0] = byte(len(path))
 
 	for i, p := range path {
-		data[1+i*4] = byte((p >> 24) & 0xff)
-		data[2+i*4] = byte((p >> 16) & 0xff)
-		data[3+i*4] = byte((p >> 8) & 0xff)
-		data[4+i*4] = byte(p & 0xff)
+		binary.BigEndian.PutUint32(data[1+i*4:], p)
 	}
 	return data
 }

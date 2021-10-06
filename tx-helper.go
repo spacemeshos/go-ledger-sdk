@@ -2,6 +2,7 @@ package ledger
 
 import (
 	"crypto/sha512"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"io/ioutil"
@@ -22,20 +23,6 @@ type txInfo struct {
 	GasPrice  uint64
 	Amount    uint64
 	Data      []byte
-}
-
-// Convert uint64 value to byte array
-func uint64ToBuf(value uint64) []byte {
-	data := make([]byte, 8)
-	data[0] = byte((value >> 56) & 0xff)
-	data[1] = byte((value >> 48) & 0xff)
-	data[2] = byte((value >> 40) & 0xff)
-	data[3] = byte((value >> 32) & 0xff)
-	data[4] = byte((value >> 24) & 0xff)
-	data[5] = byte((value >> 16) & 0xff)
-	data[6] = byte((value >> 8) & 0xff)
-	data[7] = byte((value) & 0xff)
-	return data
 }
 
 // Load transactoin info from JSON file
@@ -106,14 +93,14 @@ func loadTxInfo(fileName string) (*txInfo, error) {
 
 // Convert transaction info to byte array
 func createTx(txInfo *txInfo) []byte {
-	tx := make([]byte, 0)
-	tx = append(tx, txInfo.NetworkID...)
-	tx = append(tx, txInfo.Type)
-	tx = append(tx, uint64ToBuf(txInfo.Nonce)...)
-	tx = append(tx, txInfo.To...)
-	tx = append(tx, uint64ToBuf(txInfo.GasLimit)...)
-	tx = append(tx, uint64ToBuf(txInfo.GasPrice)...)
-	tx = append(tx, uint64ToBuf(txInfo.Amount)...)
+	tx := make([]byte, 32 + 1 + 8 + 20 + 8 + 8 + 8)
+	copy(tx, txInfo.NetworkID)
+	tx[32] = txInfo.Type
+	binary.BigEndian.PutUint64(tx[33:], txInfo.Nonce)
+	copy(tx[41:], txInfo.To)
+	binary.BigEndian.PutUint64(tx[61:], txInfo.GasLimit)
+	binary.BigEndian.PutUint64(tx[69:], txInfo.GasPrice)
+	binary.BigEndian.PutUint64(tx[77:], txInfo.Amount)
 	if txInfo.Data != nil {
 		tx = append(tx, txInfo.Data...)
 	}

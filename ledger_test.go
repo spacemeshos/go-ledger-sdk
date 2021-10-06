@@ -49,9 +49,13 @@ func doLedgerTest(t *testing.T, device *Ledger) bool {
 	}
 	fmt.Printf("OK, Version: %+v\n", version)
 
+	bip44path := "44'/540'/0'/0/0'"
+	path := StringToPath(bip44path)
+
 	// run GetExtendedPublicKey test
-	fmt.Printf("GetExtendedPublicKey test: Follow Ledger display\n")
-	publicKey, err := device.GetExtendedPublicKey(StringToPath("44'/540'/0'/0/0'"))
+	fmt.Printf("GetExtendedPublicKey test: export public key for account \"%v\"\n", bip44path);
+	fmt.Printf("Please confirm exporting the public key on your Ledger.\n")
+	publicKey, err := device.GetExtendedPublicKey(path)
 	if err != nil {
 		fmt.Printf("get public key ERROR: %v\n", err)
 		return false
@@ -59,8 +63,9 @@ func doLedgerTest(t *testing.T, device *Ledger) bool {
 	fmt.Printf("OK, public key: %x\n", publicKey)
 
 	// run GetAddress test
-	fmt.Printf("GetAddress test: Follow Ledger display\n")
-	address, err := device.GetAddress(StringToPath("44'/540'/0'/0/0'"))
+	fmt.Printf("GetAddress test: get address for account \"%v\"\n", bip44path);
+	fmt.Printf("Please confirm exporting the address on your Ledger.\n")
+	address, err := device.GetAddress(path)
 	if err != nil {
 		fmt.Printf("get address ERROR: %v\n", err)
 		return false
@@ -68,9 +73,10 @@ func doLedgerTest(t *testing.T, device *Ledger) bool {
 	fmt.Printf("OK, address: %x\n", address)
 
 	// run ShowAddress test
-	fmt.Printf("ShowAddress test: Follow Ledger display\n")
-	fmt.Printf("Expected address %x\n", address)
-	err = device.ShowAddress(StringToPath("44'/540'/0'/0/0'"))
+	fmt.Printf("ShowAddress test: show address for account \"%v\"\n", bip44path);
+	fmt.Printf("Please make sure the following address agrees with your Ledger display.\n")
+	fmt.Printf("Expected address is %x\n", address)
+	err = device.ShowAddress(path)
 	if err != nil {
 		fmt.Printf("show address ERROR: %v\n", err)
 		return false

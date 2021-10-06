@@ -230,6 +230,8 @@ func doSpeculosTests(t *testing.T) bool {
 	speculos := newSpeculos()
 	device := NewLedger(speculos)
 
+	path := StringToPath("44'/540'/0'/0/0'")
+
 	// run GetExtendedPublicKey test
 	speculos.setupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
@@ -242,7 +244,7 @@ func doSpeculosTests(t *testing.T) bool {
 		{text: "is ready"},
 	})
 
-	publicKey, err := device.GetExtendedPublicKey(StringToPath("44'/540'/0'/0/0'"))
+	publicKey, err := device.GetExtendedPublicKey(path)
 	if err != nil {
 		ok = false
 		t.Logf("get public key ERROR: %v\n", err)
@@ -274,7 +276,7 @@ func doSpeculosTests(t *testing.T) bool {
 		{text: "is ready"},
 	})
 
-	address, err := device.GetAddress(StringToPath("44'/540'/0'/0/0'"))
+	address, err := device.GetAddress(path)
 	if err != nil {
 		ok = false
 		t.Logf("get address ERROR: %v\n", err)
@@ -308,7 +310,7 @@ func doSpeculosTests(t *testing.T) bool {
 		{text: "is ready"},
 	})
 
-	err = device.ShowAddress(StringToPath("44'/540'/0'/0/0'"))
+	err = device.ShowAddress(path)
 	if err != nil {
 		ok = false
 		t.Logf("Show address ERROR: %v\n", err)
