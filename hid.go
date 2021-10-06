@@ -3,19 +3,15 @@ package ledger
 const (
 	// LedgerUSBVendorID allows identifying USB devices made by Ledger.
 	LedgerUSBVendorID = 0x2c97
-	// ReadBuffMaxSize Max read buffer size
+	// ReadBuffMaxSize is the maximal number of bytes in the read buffer.
 	ReadBuffMaxSize = 2048
 )
 
 // IHidDevice HID Lenger device interface
 type IHidDevice interface {
-	// Open device
 	Open() error
-	// Close device
 	Close()
-	// Exchange APDU packets with Ledger device
 	Exchange(apdu []byte) ([]byte, error)
-	// Get HID info for Ledger device
 	GetInfo() *HidDeviceInfo
 }
 

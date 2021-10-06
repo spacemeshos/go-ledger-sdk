@@ -1,6 +1,7 @@
 package ledger
 
 import (
+	"encoding/binary"
 	"fmt"
 )
 
@@ -69,9 +70,9 @@ func stripRetcodeFromResponse(response []byte) ([]byte, uint32) {
 		return nil, 0
 	}
 	if response[L-2] != 0x90 || response[L-1] != 0x00 { // OK code 0x9000
-		return nil, (uint32(response[L-2]) << 8) + uint32(response[L-1])
+		return nil, uint32(binary.BigEndian.Uint16(response[L-2:]))
 	}
-	return response[0 : L-2], 0x9000
+	return response[:L-2], 0x9000
 }
 
 // GetHidInfo Get HID device info
@@ -98,7 +99,7 @@ func (device *Ledger) Close() {
 // return {[]byte} Response data
 // return {error} Error value.
 //
-func (device *Ledger) send(cla byte, ins byte, p1 byte, p2 byte, data []byte) ([]byte, error) {
+func (device *Ledger) send(cla, ins, p1, p2 byte, data []byte) ([]byte, error) {
 	if len(data) >= 256 {
 		return nil, fmt.Errorf("DataLengthTooBig: data.length exceed 256 bytes limit. Got: %v", len(data))
 	}
