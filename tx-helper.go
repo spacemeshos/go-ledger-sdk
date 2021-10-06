@@ -53,7 +53,7 @@ func loadTxInfo(fileName string) (*txInfo, error) {
 	}
 
 	var data map[string]interface{}
-	json.Unmarshal([]byte(byteValue), &data)
+	json.Unmarshal(byteValue, &data)
 
 	if field, ok := data["networkId"]; ok {
 		txInfo.NetworkID, err = hex.DecodeString(field.(string))
