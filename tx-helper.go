@@ -93,7 +93,7 @@ func loadTxInfo(fileName string) (*txInfo, error) {
 
 // Convert transaction info to byte array
 func createTx(txInfo *txInfo) []byte {
-	tx := make([]byte, 32 + 1 + 8 + 20 + 8 + 8 + 8)
+	tx := make([]byte, 32+1+8+20+8+8+8)
 	copy(tx, txInfo.NetworkID)
 	tx[32] = txInfo.Type
 	binary.BigEndian.PutUint64(tx[33:], txInfo.Nonce)
