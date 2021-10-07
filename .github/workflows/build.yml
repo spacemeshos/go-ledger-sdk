@@ -1,0 +1,46 @@
+name: Build
+
+env:
+  go-version: '1.15.13'
+  ledger-app-version: '0.0.4'
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - run: sudo apt install libudev-dev
+
+    - name: Setup Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ env.go-version }}
+
+    - name: fmt, tidy, lint
+      run: |
+        make install
+        make test-tidy
+        make test-fmt
+        make lint
+
+    - name: Download Ledger app
+      run: |
+        mkdir bin
+        wget https://github.com/spacemeshos/ledger-app/releases/download/v${{ env.ledger-app-version }}/ledger-app-${{ env.ledger-app-version }}.zip -q -O app.zip
+        unzip app.zip -d bin
+
+    - name: Start Speculos
+      run: docker-compose up -d
+
+    - name: Wait Speculos
+      run: .github/tools/wait-speculos.sh
+
+    - name: Run tests
+      run: go test -v -tags=speculos
