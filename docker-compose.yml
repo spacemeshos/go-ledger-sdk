@@ -3,7 +3,7 @@ services:
   speculos:
     image: ghcr.io/ledgerhq/speculos
     container_name: speculos
-    command: --display headless apps/app.elf --sdk 1.6 --seed "secret" --model nanos
+    command: --display headless apps/app.elf --sdk 1.6 --seed "secret" --model nanos --api-port 5001
     restart: unless-stopped
     ports:
       - '5001:5001'
