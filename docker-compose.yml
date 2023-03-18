@@ -6,6 +6,6 @@ services:
     command: --display headless apps/app.elf --sdk 1.6 --seed "secret"
     restart: unless-stopped
     ports:
-      - '5000:5000'
+      - '5001:5001'
     volumes:
       - ./bin:/speculos/apps
