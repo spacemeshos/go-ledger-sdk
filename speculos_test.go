@@ -22,13 +22,13 @@ func doSpeculosTests(t *testing.T) bool {
 	path := StringToPath("44'/540'/0'/0/0'")
 
 	// run GetExtendedPublicKey test
-	speculos.SetupTest(ctx, []speculosEvent{
+	speculos.SetupTest(ctx, []SpeculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
 		{text: "Export public key"},
-		{text: "m/44'/540'/0'/0/0", action: pressBoth},
+		{text: "m/44'/540'/0'/0/0", action: PressBoth},
 		{text: "Confirm export"},
-		{text: "public key?", action: pressRight},
+		{text: "public key?", action: PressRight},
 		{text: "Spacemesh"},
 		{text: "is ready"},
 	})
@@ -54,13 +54,13 @@ func doSpeculosTests(t *testing.T) bool {
 	}
 
 	// run GetAddress test
-	speculos.SetupTest(ctx, []speculosEvent{
+	speculos.SetupTest(ctx, []SpeculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
 		{text: "Export address"},
-		{text: "Path: m/44'/540'/", action: pressBoth},
+		{text: "Path: m/44'/540'/", action: PressBoth},
 		{text: "Confirm"},
-		{text: "export address?", action: pressRight},
+		{text: "export address?", action: PressRight},
 		{text: "Spacemesh"},
 		{text: "is ready"},
 	})
@@ -86,15 +86,15 @@ func doSpeculosTests(t *testing.T) bool {
 	}
 
 	// run ShowAddress test
-	speculos.SetupTest(ctx, []speculosEvent{
+	speculos.SetupTest(ctx, []SpeculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
 		{text: "Verify address"},
-		{text: "Make sure it agre", action: pressBoth},
+		{text: "Make sure it agre", action: PressBoth},
 		{text: "Address path"},
-		{text: "m/44'/540'/0'/0/0", action: pressBoth},
+		{text: "m/44'/540'/0'/0/0", action: PressBoth},
 		{text: "Address"},
-		{text: "a47a88814cecde42f", action: pressBoth},
+		{text: "a47a88814cecde42f", action: PressBoth},
 		{text: "Spacemesh"},
 		{text: "is ready"},
 	})
@@ -113,23 +113,23 @@ func doSpeculosTests(t *testing.T) bool {
 	}
 
 	// run Sign coin transaction test
-	speculos.SetupTest(ctx, []speculosEvent{
+	speculos.SetupTest(ctx, []SpeculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
 		{text: "Tx type:"},
-		{text: "COIN ED", action: pressBoth},
+		{text: "COIN ED", action: PressBoth},
 		{text: "Send SMH"},
-		{text: "1.0", action: pressBoth},
+		{text: "1.0", action: PressBoth},
 		{text: "To address"},
-		{text: "a47a88814cecde42f", action: pressBoth},
+		{text: "a47a88814cecde42f", action: PressBoth},
 		{text: "Max Tx Fee"},
-		{text: "0.001", action: pressBoth},
+		{text: "0.001", action: PressBoth},
 		{text: "Confirm"},
-		{text: "transaction?", action: pressRight},
+		{text: "transaction?", action: PressRight},
 		{text: "Signer"},
-		{text: "a47a88814cecde42f", action: pressBoth},
+		{text: "a47a88814cecde42f", action: PressBoth},
 		{text: "Sign using"},
-		{text: "this signer?", action: pressRight},
+		{text: "this signer?", action: PressRight},
 		{text: "Spacemesh"},
 		{text: "is ready"},
 	})
@@ -141,23 +141,23 @@ func doSpeculosTests(t *testing.T) bool {
 	}
 
 	// run Sign app transaction test
-	speculos.SetupTest(ctx, []speculosEvent{
+	speculos.SetupTest(ctx, []SpeculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
 		{text: "Tx type:"},
-		{text: "EXEC APP ED", action: pressBoth},
+		{text: "EXEC APP ED", action: PressBoth},
 		{text: "Send SMH"},
-		{text: "1.0", action: pressBoth},
+		{text: "1.0", action: PressBoth},
 		{text: "To address"},
-		{text: "a47a88814cecde42f", action: pressBoth},
+		{text: "a47a88814cecde42f", action: PressBoth},
 		{text: "Max Tx Fee"},
-		{text: "0.001", action: pressBoth},
+		{text: "0.001", action: PressBoth},
 		{text: "Confirm"},
-		{text: "transaction?", action: pressRight},
+		{text: "transaction?", action: PressRight},
 		{text: "Signer"},
-		{text: "a47a88814cecde42f", action: pressBoth},
+		{text: "a47a88814cecde42f", action: PressBoth},
 		{text: "Sign using"},
-		{text: "this signer?", action: pressRight},
+		{text: "this signer?", action: PressRight},
 		{text: "Spacemesh"},
 		{text: "is ready"},
 	})
@@ -169,23 +169,23 @@ func doSpeculosTests(t *testing.T) bool {
 	}
 
 	// run Sign spawn transaction test
-	speculos.SetupTest(ctx, []speculosEvent{
+	speculos.SetupTest(ctx, []SpeculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
 		{text: "Tx type:"},
-		{text: "SPAWN APP ED", action: pressBoth},
+		{text: "SPAWN APP ED", action: PressBoth},
 		{text: "Send SMH"},
-		{text: "1.0", action: pressBoth},
+		{text: "1.0", action: PressBoth},
 		{text: "To address"},
-		{text: "a47a88814cecde42f", action: pressBoth},
+		{text: "a47a88814cecde42f", action: PressBoth},
 		{text: "Max Tx Fee"},
-		{text: "0.001", action: pressBoth},
+		{text: "0.001", action: PressBoth},
 		{text: "Confirm"},
-		{text: "transaction?", action: pressRight},
+		{text: "transaction?", action: PressRight},
 		{text: "Signer"},
-		{text: "a47a88814cecde42f", action: pressBoth},
+		{text: "a47a88814cecde42f", action: PressBoth},
 		{text: "Sign using"},
-		{text: "this signer?", action: pressRight},
+		{text: "this signer?", action: PressRight},
 		{text: "Spacemesh"},
 		{text: "is ready"},
 	})

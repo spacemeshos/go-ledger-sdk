@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-// Speculos event description struct
-type speculosEvent struct {
+// SpeculosEvent is a speculos event description struct
+type SpeculosEvent struct {
 	text   string
 	skip   bool
 	action func() error
@@ -24,7 +24,7 @@ type speculosEvent struct {
 type speculos struct {
 	Info   HidDeviceInfo
 	step   int
-	events []speculosEvent
+	events []SpeculosEvent
 	done   bool
 	ready  *sync.Cond
 }
@@ -129,20 +129,20 @@ func sendApdu(apdu string) (string, error) {
 	return data, nil
 }
 
-// Emulate of press left button on Ledger
-func pressLeft() error {
+// PressLeft emulates press left button on Ledger
+func PressLeft() error {
 	_, err := post("http://127.0.0.1:5001/button/left", "{\"action\":\"press-and-release\"}")
 	return err
 }
 
-// Emulate of press both buttons on Ledger
-func pressBoth() error {
+// PressBoth emulates press both buttons on Ledger
+func PressBoth() error {
 	_, err := post("http://127.0.0.1:5001/button/both", "{\"action\":\"press-and-release\"}")
 	return err
 }
 
-// Emulate of press right button on Ledger
-func pressRight() error {
+// PressRight emulates press right button on Ledger
+func PressRight() error {
 	_, err := post("http://127.0.0.1:5001/button/right", "{\"action\":\"press-and-release\"}")
 	return err
 }
@@ -161,7 +161,7 @@ func (device *speculos) Exchange(apdu []byte) ([]byte, error) {
 }
 
 // SetupTest prepares the device for testing and starts the Speculos event pump.
-func (device *speculos) SetupTest(ctx context.Context, events []speculosEvent) {
+func (device *speculos) SetupTest(ctx context.Context, events []SpeculosEvent) {
 	device.step = -1
 	device.events = events
 	device.done = false
