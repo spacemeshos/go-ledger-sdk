@@ -15,9 +15,9 @@ import (
 
 // SpeculosEvent is a speculos event description struct
 type SpeculosEvent struct {
-	text   string
-	skip   bool
-	action func() error
+	Text   string
+	Skip   bool
+	Action func() error
 }
 
 // Speculos object struct
@@ -54,18 +54,18 @@ func (device *speculos) GetInfo() *HidDeviceInfo {
 
 // Processing Speculos events
 func (device *speculos) onEvent(data map[string]interface{}) bool {
-	textField, ok := data["text"]
+	textField, ok := data["Text"]
 	if !ok {
-		panic("No 'text' field")
+		panic("No 'Text' field")
 	}
 	text, ok := textField.(string)
 	if !ok {
-		panic("'text' field in not string")
+		panic("'Text' field in not string")
 	}
 	if device.step == -1 {
 		for i := 0; i < len(device.events); i++ {
-			if device.events[i].text == text {
-				if device.events[i].skip {
+			if device.events[i].Text == text {
+				if device.events[i].Skip {
 					return true
 				}
 				device.step = i
@@ -77,11 +77,11 @@ func (device *speculos) onEvent(data map[string]interface{}) bool {
 		}
 	}
 	event := &device.events[device.step]
-	if text != event.text {
+	if text != event.Text {
 		panic("Unexpected event " + text)
 	}
-	if event.action != nil {
-		event.action()
+	if event.Action != nil {
+		event.Action()
 	}
 	device.step++
 	return device.step < len(device.events)
@@ -131,19 +131,19 @@ func sendApdu(apdu string) (string, error) {
 
 // PressLeft emulates press left button on Ledger
 func PressLeft() error {
-	_, err := post("http://127.0.0.1:5001/button/left", "{\"action\":\"press-and-release\"}")
+	_, err := post("http://127.0.0.1:5001/button/left", "{\"Action\":\"press-and-release\"}")
 	return err
 }
 
 // PressBoth emulates press both buttons on Ledger
 func PressBoth() error {
-	_, err := post("http://127.0.0.1:5001/button/both", "{\"action\":\"press-and-release\"}")
+	_, err := post("http://127.0.0.1:5001/button/both", "{\"Action\":\"press-and-release\"}")
 	return err
 }
 
 // PressRight emulates press right button on Ledger
 func PressRight() error {
-	_, err := post("http://127.0.0.1:5001/button/right", "{\"action\":\"press-and-release\"}")
+	_, err := post("http://127.0.0.1:5001/button/right", "{\"Action\":\"press-and-release\"}")
 	return err
 }
 
@@ -191,7 +191,7 @@ func (device *speculos) SetupTest(ctx context.Context, events []SpeculosEvent) {
 				return
 			}
 			text := string(line)
-			// t.Logf("Line: %v\n", text)
+			// t.Logf("Line: %v\n", Text)
 			if strings.HasPrefix(text, "data: ") {
 				end := strings.LastIndexByte(text, '}')
 				if end == -1 {

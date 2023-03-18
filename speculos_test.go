@@ -23,14 +23,14 @@ func doSpeculosTests(t *testing.T) bool {
 
 	// run GetExtendedPublicKey test
 	speculos.SetupTest(ctx, []SpeculosEvent{
-		{text: "Spacemesh", skip: true},
-		{text: "is ready", skip: true},
-		{text: "Export public key"},
-		{text: "m/44'/540'/0'/0/0", action: PressBoth},
-		{text: "Confirm export"},
-		{text: "public key?", action: PressRight},
-		{text: "Spacemesh"},
-		{text: "is ready"},
+		{Text: "Spacemesh", Skip: true},
+		{Text: "is ready", Skip: true},
+		{Text: "Export public key"},
+		{Text: "m/44'/540'/0'/0/0", Action: PressBoth},
+		{Text: "Confirm export"},
+		{Text: "public key?", Action: PressRight},
+		{Text: "Spacemesh"},
+		{Text: "is ready"},
 	})
 
 	publicKey, err := device.GetExtendedPublicKey(path)
@@ -55,14 +55,14 @@ func doSpeculosTests(t *testing.T) bool {
 
 	// run GetAddress test
 	speculos.SetupTest(ctx, []SpeculosEvent{
-		{text: "Spacemesh", skip: true},
-		{text: "is ready", skip: true},
-		{text: "Export address"},
-		{text: "Path: m/44'/540'/", action: PressBoth},
-		{text: "Confirm"},
-		{text: "export address?", action: PressRight},
-		{text: "Spacemesh"},
-		{text: "is ready"},
+		{Text: "Spacemesh", Skip: true},
+		{Text: "is ready", Skip: true},
+		{Text: "Export address"},
+		{Text: "Path: m/44'/540'/", Action: PressBoth},
+		{Text: "Confirm"},
+		{Text: "export address?", Action: PressRight},
+		{Text: "Spacemesh"},
+		{Text: "is ready"},
 	})
 
 	address, err := device.GetAddress(path)
@@ -87,16 +87,16 @@ func doSpeculosTests(t *testing.T) bool {
 
 	// run ShowAddress test
 	speculos.SetupTest(ctx, []SpeculosEvent{
-		{text: "Spacemesh", skip: true},
-		{text: "is ready", skip: true},
-		{text: "Verify address"},
-		{text: "Make sure it agre", action: PressBoth},
-		{text: "Address path"},
-		{text: "m/44'/540'/0'/0/0", action: PressBoth},
-		{text: "Address"},
-		{text: "a47a88814cecde42f", action: PressBoth},
-		{text: "Spacemesh"},
-		{text: "is ready"},
+		{Text: "Spacemesh", Skip: true},
+		{Text: "is ready", Skip: true},
+		{Text: "Verify address"},
+		{Text: "Make sure it agre", Action: PressBoth},
+		{Text: "Address path"},
+		{Text: "m/44'/540'/0'/0/0", Action: PressBoth},
+		{Text: "Address"},
+		{Text: "a47a88814cecde42f", Action: PressBoth},
+		{Text: "Spacemesh"},
+		{Text: "is ready"},
 	})
 
 	err = device.ShowAddress(path)
@@ -114,24 +114,24 @@ func doSpeculosTests(t *testing.T) bool {
 
 	// run Sign coin transaction test
 	speculos.SetupTest(ctx, []SpeculosEvent{
-		{text: "Spacemesh", skip: true},
-		{text: "is ready", skip: true},
-		{text: "Tx type:"},
-		{text: "COIN ED", action: PressBoth},
-		{text: "Send SMH"},
-		{text: "1.0", action: PressBoth},
-		{text: "To address"},
-		{text: "a47a88814cecde42f", action: PressBoth},
-		{text: "Max Tx Fee"},
-		{text: "0.001", action: PressBoth},
-		{text: "Confirm"},
-		{text: "transaction?", action: PressRight},
-		{text: "Signer"},
-		{text: "a47a88814cecde42f", action: PressBoth},
-		{text: "Sign using"},
-		{text: "this signer?", action: PressRight},
-		{text: "Spacemesh"},
-		{text: "is ready"},
+		{Text: "Spacemesh", Skip: true},
+		{Text: "is ready", Skip: true},
+		{Text: "Tx type:"},
+		{Text: "COIN ED", Action: PressBoth},
+		{Text: "Send SMH"},
+		{Text: "1.0", Action: PressBoth},
+		{Text: "To address"},
+		{Text: "a47a88814cecde42f", Action: PressBoth},
+		{Text: "Max Tx Fee"},
+		{Text: "0.001", Action: PressBoth},
+		{Text: "Confirm"},
+		{Text: "transaction?", Action: PressRight},
+		{Text: "Signer"},
+		{Text: "a47a88814cecde42f", Action: PressBoth},
+		{Text: "Sign using"},
+		{Text: "this signer?", Action: PressRight},
+		{Text: "Spacemesh"},
+		{Text: "is ready"},
 	})
 
 	ok = testTx(t, device, "coin.tx.json", "coin", publicKey.PublicKey, nil)
@@ -142,24 +142,24 @@ func doSpeculosTests(t *testing.T) bool {
 
 	// run Sign app transaction test
 	speculos.SetupTest(ctx, []SpeculosEvent{
-		{text: "Spacemesh", skip: true},
-		{text: "is ready", skip: true},
-		{text: "Tx type:"},
-		{text: "EXEC APP ED", action: PressBoth},
-		{text: "Send SMH"},
-		{text: "1.0", action: PressBoth},
-		{text: "To address"},
-		{text: "a47a88814cecde42f", action: PressBoth},
-		{text: "Max Tx Fee"},
-		{text: "0.001", action: PressBoth},
-		{text: "Confirm"},
-		{text: "transaction?", action: PressRight},
-		{text: "Signer"},
-		{text: "a47a88814cecde42f", action: PressBoth},
-		{text: "Sign using"},
-		{text: "this signer?", action: PressRight},
-		{text: "Spacemesh"},
-		{text: "is ready"},
+		{Text: "Spacemesh", Skip: true},
+		{Text: "is ready", Skip: true},
+		{Text: "Tx type:"},
+		{Text: "EXEC APP ED", Action: PressBoth},
+		{Text: "Send SMH"},
+		{Text: "1.0", Action: PressBoth},
+		{Text: "To address"},
+		{Text: "a47a88814cecde42f", Action: PressBoth},
+		{Text: "Max Tx Fee"},
+		{Text: "0.001", Action: PressBoth},
+		{Text: "Confirm"},
+		{Text: "transaction?", Action: PressRight},
+		{Text: "Signer"},
+		{Text: "a47a88814cecde42f", Action: PressBoth},
+		{Text: "Sign using"},
+		{Text: "this signer?", Action: PressRight},
+		{Text: "Spacemesh"},
+		{Text: "is ready"},
 	})
 
 	ok = testTx(t, device, "app.tx.json", "app", publicKey.PublicKey, nil)
@@ -170,24 +170,24 @@ func doSpeculosTests(t *testing.T) bool {
 
 	// run Sign spawn transaction test
 	speculos.SetupTest(ctx, []SpeculosEvent{
-		{text: "Spacemesh", skip: true},
-		{text: "is ready", skip: true},
-		{text: "Tx type:"},
-		{text: "SPAWN APP ED", action: PressBoth},
-		{text: "Send SMH"},
-		{text: "1.0", action: PressBoth},
-		{text: "To address"},
-		{text: "a47a88814cecde42f", action: PressBoth},
-		{text: "Max Tx Fee"},
-		{text: "0.001", action: PressBoth},
-		{text: "Confirm"},
-		{text: "transaction?", action: PressRight},
-		{text: "Signer"},
-		{text: "a47a88814cecde42f", action: PressBoth},
-		{text: "Sign using"},
-		{text: "this signer?", action: PressRight},
-		{text: "Spacemesh"},
-		{text: "is ready"},
+		{Text: "Spacemesh", Skip: true},
+		{Text: "is ready", Skip: true},
+		{Text: "Tx type:"},
+		{Text: "SPAWN APP ED", Action: PressBoth},
+		{Text: "Send SMH"},
+		{Text: "1.0", Action: PressBoth},
+		{Text: "To address"},
+		{Text: "a47a88814cecde42f", Action: PressBoth},
+		{Text: "Max Tx Fee"},
+		{Text: "0.001", Action: PressBoth},
+		{Text: "Confirm"},
+		{Text: "transaction?", Action: PressRight},
+		{Text: "Signer"},
+		{Text: "a47a88814cecde42f", Action: PressBoth},
+		{Text: "Sign using"},
+		{Text: "this signer?", Action: PressRight},
+		{Text: "Spacemesh"},
+		{Text: "is ready"},
 	})
 
 	ok = testTx(t, device, "spawn.tx.json", "spawn", publicKey.PublicKey, nil)
