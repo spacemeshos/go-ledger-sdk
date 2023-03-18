@@ -2,6 +2,7 @@ package ledger
 
 /*
 #cgo LDFLAGS: -L . -L/usr/local/lib -framework CoreFoundation -framework IOKit -framework AppKit
+#cgo CPPFLAGS: -I./hidapi/hidapi
 #include "./hidapi/hidapi/hidapi.h"
 #include "./hidapi/mac/hid.c"
 */
@@ -26,16 +27,16 @@ type HidDevice struct {
 //
 // example
 // devices := ledger.GetDevices(0)
-// if devices != nil && len(devices) > 0 {
-// 	device := devices[0]
-// 	if err := device.Open(); err == nil {
-// 		...
-// 		device.Close()
-// 	} else {
-// 		fmt.Printf("Open device ERROR: %v\n", err)
-// 	}
-// }
 //
+//	if devices != nil && len(devices) > 0 {
+//		device := devices[0]
+//		if err := device.Open(); err == nil {
+//			...
+//			device.Close()
+//		} else {
+//			fmt.Printf("Open device ERROR: %v\n", err)
+//		}
+//	}
 func (device *HidDevice) Open() error {
 	device.closeHandle()
 	path := C.CString(device.Info.Path)
@@ -68,16 +69,16 @@ func (device *HidDevice) read() []byte {
 //
 // example
 // devices := ledger.GetDevices(0)
-// if devices != nil && len(devices) > 0 {
-// 	device := devices[0]
-// 	if err := device.Open(); err == nil {
-// 		...
-// 		device.Close()
-// 	} else {
-// 		fmt.Printf("Open device ERROR: %v\n", err)
-// 	}
-// }
 //
+//	if devices != nil && len(devices) > 0 {
+//		device := devices[0]
+//		if err := device.Open(); err == nil {
+//			...
+//			device.Close()
+//		} else {
+//			fmt.Printf("Open device ERROR: %v\n", err)
+//		}
+//	}
 func (device *HidDevice) Close() {
 	device.closeHandle()
 }
@@ -112,16 +113,16 @@ func (device *HidDevice) write(buffer []byte, writeLength int) int {
 //
 // example
 // devices := ledger.GetDevices(0)
-// if devices != nil && len(devices) > 0 {
-// 	device := devices[0]
-// 	if err := device.Open(); err == nil {
-// 		...
-// 		device.Close()
-// 	} else {
-// 		fmt.Printf("Open device ERROR: %v\n", err)
-// 	}
-// }
 //
+//	if devices != nil && len(devices) > 0 {
+//		device := devices[0]
+//		if err := device.Open(); err == nil {
+//			...
+//			device.Close()
+//		} else {
+//			fmt.Printf("Open device ERROR: %v\n", err)
+//		}
+//	}
 func GetDevices(productID int) []*Ledger {
 	devs := C.hid_enumerate(C.ushort(LedgerUSBVendorID), C.ushort(productID))
 	if devs == nil {

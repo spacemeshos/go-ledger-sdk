@@ -63,7 +63,6 @@ type BipPath []uint32
 // param {[]byte} Response data
 // return {[]byte} Response data without return code
 // return {uint32} Error code.
-//
 func stripRetcodeFromResponse(response []byte) ([]byte, uint32) {
 	L := len(response)
 	if L < 2 {
@@ -98,7 +97,6 @@ func (device *Ledger) Close() {
 // param data Payload
 // return {[]byte} Response data
 // return {error} Error value.
-//
 func (device *Ledger) send(cla, ins, p1, p2 byte, data []byte) ([]byte, error) {
 	if len(data) >= 256 {
 		return nil, fmt.Errorf("DataLengthTooBig: data.length exceed 256 bytes limit. Got: %v", len(data))
@@ -147,12 +145,13 @@ func (device *Ledger) send(cla, ins, p1, p2 byte, data []byte) ([]byte, error) {
 //
 // example
 // version, err := device.GetVersion()
-// if err != nil {
-// 	fmt.Printf("get version ERROR: %v\n", err)
-// } else {
-// 	fmt.Printf("version: %+v\n", version)
-// }
 //
+//	if err != nil {
+//		fmt.Printf("get version ERROR: %v\n", err)
+//	} else {
+//
+//		fmt.Printf("version: %+v\n", version)
+//	}
 func (device *Ledger) GetVersion() (*Version, error) {
 	response, err := device.send(cCLA, cInsGetVersion, cP1Unused, cP2Unused, []byte{})
 	if err != nil {
@@ -177,12 +176,13 @@ func (device *Ledger) GetVersion() (*Version, error) {
 //
 // example
 // publicKey, err := device.GetExtendedPublicKey(ledger.StringToPath("44'/540'/0'/0/0'"))
-// if err != nil {
-// 	fmt.Printf("get public key ERROR: %v\n", err)
-// } else {
-// 	fmt.Printf("public key: %+v\n", publicKey)
-// }
 //
+//	if err != nil {
+//		fmt.Printf("get public key ERROR: %v\n", err)
+//	} else {
+//
+//		fmt.Printf("public key: %+v\n", publicKey)
+//	}
 func (device *Ledger) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey, error) {
 	data := pathToBytes(path)
 	response, err := device.send(cCLA, cInsGetExtPublicKey, cP1Unused, cP2Unused, data)
@@ -206,12 +206,13 @@ func (device *Ledger) GetExtendedPublicKey(path BipPath) (*ExtendedPublicKey, er
 //
 // example
 // address, err := device.GetAddress(ledger.StringToPath("44'/540'/0'/0/0'"))
-// if err != nil {
-// 	fmt.Printf("get address ERROR: %v\n", err)
-// } else {
-// 	fmt.Printf("address: %+v\n", address)
-// }
 //
+//	if err != nil {
+//		fmt.Printf("get address ERROR: %v\n", err)
+//	} else {
+//
+//		fmt.Printf("address: %+v\n", address)
+//	}
 func (device *Ledger) GetAddress(path BipPath) ([]byte, error) {
 	data := pathToBytes(path)
 	response, err := device.send(cCLA, cInsGetAddress, cP1Return, cP2Unused, data)
@@ -231,12 +232,13 @@ func (device *Ledger) GetAddress(path BipPath) ([]byte, error) {
 //
 // example
 // err := device.ShowAddress(ledger.StringToPath("44'/540'/0'/0/1'"))
-// if err != nil {
-// 	fmt.Printf("show address ERROR: %v\n", err)
-// } else {
-// 	fmt.Printf("show address: OK\n")
-// }
 //
+//	if err != nil {
+//		fmt.Printf("show address ERROR: %v\n", err)
+//	} else {
+//
+//		fmt.Printf("show address: OK\n")
+//	}
 func (device *Ledger) ShowAddress(path BipPath) error {
 	data := pathToBytes(path)
 	response, err := device.send(cCLA, cInsGetAddress, cP1Display, cP2Unused, data)
@@ -272,13 +274,14 @@ func (device *Ledger) ShowAddress(path BipPath) error {
 // tx = append(tx, publicKey.PublicKey...)
 //
 // response, err := device.SignTx(ledger.StringToPath("44'/540'/0'/0/0'"), tx)
-// if err != nil {
-// 	fmt.Printf("Verify coin tx ERROR: %v\n", err)
-// } else {
-// 	hash := sha512.Sum512(tx)
-// 	fmt.Printf("Verify coin tx: %v\n", ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]))
-// }
 //
+//	if err != nil {
+//		fmt.Printf("Verify coin tx ERROR: %v\n", err)
+//	} else {
+//
+//		hash := sha512.Sum512(tx)
+//		fmt.Printf("Verify coin tx: %v\n", ed25519.Verify(publicKey.PublicKey, hash[:], response[1:65]))
+//	}
 func (device *Ledger) SignTx(path BipPath, tx []byte) ([]byte, error) {
 	data := pathToBytes(path)
 	data = append(data, tx...)

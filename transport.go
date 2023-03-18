@@ -58,7 +58,6 @@ func (frame *apduFrame) getResult() []byte {
 // param apdu
 // return {[]byte} apdu response
 // return {error} Error value.
-//
 func (device *HidDevice) Exchange(apdu []byte) ([]byte, error) {
 	message := make([]byte, cPacketSize+1)
 	dataLength := len(apdu)
