@@ -29,8 +29,8 @@ type speculos struct {
 	ready  *sync.Cond
 }
 
-// Create new Speculos object
-func newSpeculos() *speculos {
+// NewSpeculos creates a new speculos object
+func NewSpeculos() *speculos {
 	return &speculos{
 		step:  -1,
 		done:  false,
