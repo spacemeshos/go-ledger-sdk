@@ -16,7 +16,7 @@ func doSpeculosTests(t *testing.T) bool {
 	defer cancel()
 
 	ok := true
-	speculos := newSpeculos()
+	speculos := NewSpeculos()
 	device := NewLedger(speculos)
 
 	path := StringToPath("44'/540'/0'/0/0'")
