@@ -108,8 +108,8 @@ func createTx(txInfo *txInfo) []byte {
 	return tx
 }
 
-// Do transaction test
-func testTx(t *testing.T, device *Ledger, txInfoFileName string, txType string, publicKey []byte, callback func(txInfo *txInfo)) bool {
+// TestTx performs a transaction test
+func TestTx(t *testing.T, device *Ledger, txInfoFileName string, txType string, publicKey []byte, callback func(txInfo *txInfo)) bool {
 	if txInfo, err := loadTxInfo(txInfoFileName); err == nil {
 		txInfo.PublicKey = publicKey
 		if callback != nil {

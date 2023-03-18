@@ -86,21 +86,21 @@ func doLedgerTest(t *testing.T, device *Ledger) bool {
 
 	// run Sign coin transaction test
 	fmt.Printf("Sign coin transaction test: Follow Ledger display\n")
-	if !testTx(t, device, "coin.tx.json", "coin", publicKey.PublicKey, printTxInfo) {
+	if !TestTx(t, device, "coin.tx.json", "coin", publicKey.PublicKey, printTxInfo) {
 		return false
 	}
 	fmt.Printf("OK\n")
 
 	// run Sign app transaction test
 	fmt.Printf("Sign app transaction test: Follow Ledger display\n")
-	if !testTx(t, device, "app.tx.json", "app", publicKey.PublicKey, printTxInfo) {
+	if !TestTx(t, device, "app.tx.json", "app", publicKey.PublicKey, printTxInfo) {
 		return false
 	}
 	fmt.Printf("OK\n")
 
 	// run Sign spawn transaction test
 	fmt.Printf("Sign spawn transaction test: Follow Ledger display\n")
-	if !testTx(t, device, "spawn.tx.json", "spawn", publicKey.PublicKey, printTxInfo) {
+	if !TestTx(t, device, "spawn.tx.json", "spawn", publicKey.PublicKey, printTxInfo) {
 		return false
 	}
 	fmt.Printf("OK\n")
