@@ -2,8 +2,7 @@
 
 counter=0
 while true; do
-  docker logs --tail=5 speculos
-  docker logs --tail=5 speculos 2>&1 | grep using\ SDK\ version\ 1.6
+  docker logs --tail=5 speculos 2>&1 | grep using\ SDK\ version\ 4\ on\ nanos
   if [ $? == 0 ]; then
     exit 0
   fi
