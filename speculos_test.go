@@ -1,3 +1,4 @@
+//go:build speculos
 // +build speculos
 
 package ledger
