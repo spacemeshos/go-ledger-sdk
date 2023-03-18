@@ -1,3 +1,4 @@
+//go:build !speculos
 // +build !speculos
 
 package ledger
@@ -17,7 +18,7 @@ func getTxTypeString(txType byte) string {
 	case 4:
 		return "SPAWN APP ED"
 	default:
-		return "UNWNOWN"
+		return "UNKNOWN"
 	}
 }
 

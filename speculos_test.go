@@ -1,3 +1,4 @@
+//go:build speculos
 // +build speculos
 
 package ledger
@@ -112,7 +113,7 @@ func sendApdu(apdu string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	req, _ := http.NewRequest(http.MethodPost, "http://127.0.0.1:5000/apdu", bytes.NewBuffer([]byte("{\"data\": \""+apdu+"\"}")))
+	req, _ := http.NewRequest(http.MethodPost, "http://127.0.0.1:5001/apdu", bytes.NewBuffer([]byte("{\"data\": \""+apdu+"\"}")))
 	req.Header.Set("Content-Type", "application/json")
 	req = req.WithContext(ctx)
 
@@ -134,19 +135,19 @@ func sendApdu(apdu string) (string, error) {
 
 // Emulate of press left button on Ledger
 func pressLeft() error {
-	_, err := post("http://127.0.0.1:5000/button/left", "{\"action\":\"press-and-release\"}")
+	_, err := post("http://127.0.0.1:5001/button/left", "{\"action\":\"press-and-release\"}")
 	return err
 }
 
 // Emulate of press both buttons on Ledger
 func pressBoth() error {
-	_, err := post("http://127.0.0.1:5000/button/both", "{\"action\":\"press-and-release\"}")
+	_, err := post("http://127.0.0.1:5001/button/both", "{\"action\":\"press-and-release\"}")
 	return err
 }
 
 // Emulate of press right button on Ledger
 func pressRight() error {
-	_, err := post("http://127.0.0.1:5000/button/right", "{\"action\":\"press-and-release\"}")
+	_, err := post("http://127.0.0.1:5001/button/right", "{\"action\":\"press-and-release\"}")
 	return err
 }
 
@@ -174,7 +175,7 @@ func (device *speculos) setupTest(ctx context.Context, events []speculosEvent) {
 		defer device.ready.Signal()
 
 		// t.Logf("Speculos events pump start!\n")
-		req, _ := http.NewRequest(http.MethodGet, "http://127.0.0.1:5000/events?stream=true", nil)
+		req, _ := http.NewRequest(http.MethodGet, "http://127.0.0.1:5001/events?stream=true", nil)
 		req = req.WithContext(ctx)
 
 		client := &http.Client{}
