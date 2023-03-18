@@ -22,7 +22,7 @@ func doSpeculosTests(t *testing.T) bool {
 	path := StringToPath("44'/540'/0'/0/0'")
 
 	// run GetExtendedPublicKey test
-	speculos.setupTest(ctx, []speculosEvent{
+	speculos.SetupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
 		{text: "Export public key"},
@@ -48,13 +48,13 @@ func doSpeculosTests(t *testing.T) bool {
 		}
 	}
 
-	ok = ok && speculos.waitTestDone()
+	ok = ok && speculos.WaitTestDone()
 	if !ok {
 		return false
 	}
 
 	// run GetAddress test
-	speculos.setupTest(ctx, []speculosEvent{
+	speculos.SetupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
 		{text: "Export address"},
@@ -80,13 +80,13 @@ func doSpeculosTests(t *testing.T) bool {
 		}
 	}
 
-	ok = ok && speculos.waitTestDone()
+	ok = ok && speculos.WaitTestDone()
 	if !ok {
 		return false
 	}
 
 	// run ShowAddress test
-	speculos.setupTest(ctx, []speculosEvent{
+	speculos.SetupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
 		{text: "Verify address"},
@@ -107,13 +107,13 @@ func doSpeculosTests(t *testing.T) bool {
 		t.Logf("Show address: OK\n")
 	}
 
-	ok = ok && speculos.waitTestDone()
+	ok = ok && speculos.WaitTestDone()
 	if !ok {
 		return false
 	}
 
 	// run Sign coin transaction test
-	speculos.setupTest(ctx, []speculosEvent{
+	speculos.SetupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
 		{text: "Tx type:"},
@@ -135,13 +135,13 @@ func doSpeculosTests(t *testing.T) bool {
 	})
 
 	ok = testTx(t, device, "coin.tx.json", "coin", publicKey.PublicKey, nil)
-	ok = ok && speculos.waitTestDone()
+	ok = ok && speculos.WaitTestDone()
 	if !ok {
 		return false
 	}
 
 	// run Sign app transaction test
-	speculos.setupTest(ctx, []speculosEvent{
+	speculos.SetupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
 		{text: "Tx type:"},
@@ -163,13 +163,13 @@ func doSpeculosTests(t *testing.T) bool {
 	})
 
 	ok = testTx(t, device, "app.tx.json", "app", publicKey.PublicKey, nil)
-	ok = ok && speculos.waitTestDone()
+	ok = ok && speculos.WaitTestDone()
 	if !ok {
 		return false
 	}
 
 	// run Sign spawn transaction test
-	speculos.setupTest(ctx, []speculosEvent{
+	speculos.SetupTest(ctx, []speculosEvent{
 		{text: "Spacemesh", skip: true},
 		{text: "is ready", skip: true},
 		{text: "Tx type:"},
@@ -191,7 +191,7 @@ func doSpeculosTests(t *testing.T) bool {
 	})
 
 	ok = testTx(t, device, "spawn.tx.json", "spawn", publicKey.PublicKey, nil)
-	ok = ok && speculos.waitTestDone()
+	ok = ok && speculos.WaitTestDone()
 	if !ok {
 		return false
 	}

@@ -160,8 +160,8 @@ func (device *speculos) Exchange(apdu []byte) ([]byte, error) {
 	return data, nil
 }
 
-// Prepare the device for testing and start the Speculos event pump.
-func (device *speculos) setupTest(ctx context.Context, events []speculosEvent) {
+// SetupTest prepares the device for testing and starts the Speculos event pump.
+func (device *speculos) SetupTest(ctx context.Context, events []speculosEvent) {
 	device.step = -1
 	device.events = events
 	device.done = false
@@ -210,8 +210,8 @@ func (device *speculos) setupTest(ctx context.Context, events []speculosEvent) {
 	}()
 }
 
-// Wait for a test to complete
-func (device *speculos) waitTestDone() bool {
+// WaitTestDone waits for a test to complete
+func (device *speculos) WaitTestDone() bool {
 	device.ready.L.Lock()
 	device.ready.Wait()
 	device.ready.L.Unlock()
