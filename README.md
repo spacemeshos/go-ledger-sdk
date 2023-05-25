@@ -1,6 +1,8 @@
 # go-ledger-sdk
 A golang SDK for using Ledger wallets from golang Spacemesh wallets such as smrepl
 
+# Note: this repository is no longer maintained. Please see [spacemesh-sdk](https://github.com/spacemeshos/spacemesh-sdk) instead.
+
 ## API
 
 Enumerate Ledger devices.
